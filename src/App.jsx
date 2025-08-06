@@ -19,7 +19,7 @@ function App() {
         <h1>TipTap 富文本编辑器 Demo</h1>
       </header>
       <main className="App-main">
-        <EditorOfficial value={value} onChange={handleChange} placeholder="请输入内容" />
+        <EditorOfficial value={value} onChange={handleChange} limit={5} placeholder="请输入内容" />
       </main>
     </div>
   );

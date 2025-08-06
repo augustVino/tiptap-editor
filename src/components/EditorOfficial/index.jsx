@@ -6,7 +6,7 @@ import Text from '@tiptap/extension-text';
 import Mention from '@tiptap/extension-mention';
 import './index.css';
 
-const EditorOfficial = ({ value, onChange, placeholder }) => {
+const EditorOfficial = ({ value, onChange, placeholder, limit }) => {
   const editor = useEditor({
     extensions: [
       Document,
@@ -21,6 +21,10 @@ const EditorOfficial = ({ value, onChange, placeholder }) => {
     content: value,
     onUpdate: ({ editor }) => {
       const text = editor.getText();
+      if (limit && text.length > limit) {
+        editor.commands.setContent(text.slice(0, limit), false);
+        return;
+      }
       onChange(text);
     },
     editorProps: {
