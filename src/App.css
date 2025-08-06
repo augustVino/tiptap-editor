@@ -1,0 +1,28 @@
+.App {
+  text-align: center;
+  width: 100%;
+}
+
+.App-header {
+  margin-bottom: 2rem;
+}
+
+.App-header h1 {
+  color: #333;
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.App-main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+}
+
+@media (prefers-color-scheme: dark) {
+  .App-header h1 {
+    color: #fff;
+  }
+}
