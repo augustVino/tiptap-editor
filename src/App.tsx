@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import EditorOfficial from './components/EditorOfficial';
 import './App.css';
 
 function App() {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<string>('');
 
-  const handleChange = (text) => {
+  const handleChange = (text: string): void => {
     if (text.length > 5) {
       console.warn('text length is too long');
       return;

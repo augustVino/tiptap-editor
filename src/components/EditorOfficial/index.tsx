@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
@@ -6,7 +6,14 @@ import Text from '@tiptap/extension-text';
 import Mention from '@tiptap/extension-mention';
 import './index.css';
 
-const EditorOfficial = ({ value, onChange, placeholder, limit }) => {
+interface EditorOfficialProps {
+  value: string;
+  onChange: (text: string) => void;
+  placeholder?: string;
+  limit?: number;
+}
+
+const EditorOfficial = ({ value, onChange, placeholder, limit }: EditorOfficialProps) => {
   const editor = useEditor({
     extensions: [
       Document,
@@ -18,7 +25,7 @@ const EditorOfficial = ({ value, onChange, placeholder, limit }) => {
         }
       })
     ],
-    content: value,
+    content: value || '',
     onUpdate: ({ editor }) => {
       const text = editor.getText();
       if (limit && text.length > limit) {
@@ -30,7 +37,7 @@ const EditorOfficial = ({ value, onChange, placeholder, limit }) => {
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none',
-        placeholder: placeholder
+        ...(placeholder && { 'data-placeholder': placeholder })
       }
     }
   });
