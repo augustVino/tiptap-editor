@@ -19,18 +19,22 @@
     "@tiptap/extension-mention": "^2.25.0",
     "@tiptap/extension-paragraph": "^2.25.0",
     "@tiptap/extension-text": "^2.25.0",
+    "@tiptap/pm": "^3.1.0",
     "@tiptap/react": "^2.25.0",
     "@tiptap/starter-kit": "^2.25.0",
     "@tiptap/suggestion": "^2.25.0",
+    "classnames": "^2.5.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-router-dom": "6.30.1"
+    "react-router-dom": "6.30.1",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@types/node": "^24.2.1",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.3.1",
+    "less": "^4.4.0",
     "typescript": "^5.9.2",
     "vite": "^5.4.1"
   }

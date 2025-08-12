@@ -4,7 +4,7 @@ import Document from '@tiptap/extension-document';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import Mention from '@tiptap/extension-mention';
-import './index.css';
+import styles from './index.module.less';
 
 interface EditorOfficialProps {
   value: string;
@@ -48,7 +48,16 @@ const EditorOfficial = ({ value, onChange, placeholder, limit }: EditorOfficialP
     }
   }, [editor, value]);
 
-  return <EditorContent editor={editor} />;
+  return (
+    <div className={styles.editorContainer}>
+      <div className={styles.editorToolbar}>
+        <h3>TipTap 富文本编辑器</h3>
+      </div>
+      <div className={styles.editorContent}>
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  );
 };
 
 export default EditorOfficial;

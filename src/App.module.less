@@ -1,0 +1,39 @@
+// 导入全局变量和混入
+@import './styles/variables.less';
+
+// 本地变量
+@header-font-size: 2.5rem;
+@main-width: 600px;
+
+.app {
+  .flex-center();
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 2rem;
+
+  h1 {
+    color: @primary-color;
+    font-size: @header-font-size;
+    margin: 0;
+    font-weight: 600;
+    .text-ellipsis();
+  }
+}
+
+.main {
+  width: @main-width;
+  text-align: left;
+}
+
+// 暗色主题
+@media (prefers-color-scheme: dark) {
+  .header {
+    h1 {
+      color: #fff;
+    }
+  }
+}
