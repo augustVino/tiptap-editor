@@ -112,6 +112,15 @@ export interface SuggestionOptions<I = any, TSelected = any> {
     isActive?: boolean;
   }) => boolean;
   findSuggestionMatch?: typeof defaultFindSuggestionMatch;
+
+  /**
+   * Custom composition state provider for more accurate input method composition detection.
+   * When provided, this will be used instead of editor.view.composing for determining composition state.
+   * @param props The props object.
+   * @returns {boolean} true if currently composing, false otherwise
+   * @example () => customCompositionManager.getComposingState()
+   */
+  getComposingState?: () => boolean;
 }
 
 export interface SuggestionProps<I = any, TSelected = any> {
@@ -187,7 +196,8 @@ export function Suggestion<I = any, TSelected = any>({
   items = () => [],
   render = () => ({}),
   allow = () => true,
-  findSuggestionMatch = defaultFindSuggestionMatch
+  findSuggestionMatch = defaultFindSuggestionMatch,
+  getComposingState
 }: SuggestionOptions<I, TSelected>) {
   let props: SuggestionProps<I, TSelected> | undefined;
   const renderer = render?.();
@@ -201,22 +211,54 @@ export function Suggestion<I = any, TSelected = any>({
           const prev = this.key?.getState(prevState);
           const next = this.key?.getState(view.state);
 
+          // 获取当前的 composing 状态
+          const currentComposing = getComposingState ? getComposingState() : view.composing;
+
           // See how the state changed
           const moved = prev.active && next.active && prev.range.from !== next.range.from;
           const started = !prev.active && next.active;
           const stopped = prev.active && !next.active;
           const changed = !started && !stopped && prev.query !== next.query;
 
-          const handleStart = started || (moved && changed);
-          const handleChange = changed || moved;
-          const handleExit = stopped || (moved && changed);
+          // 在输入法期间，只允许 handleChange，避免 handleExit 导致 popup 被意外销毁
+          let handleStart = started || (moved && changed);
+          let handleChange = changed || moved;
+          let handleExit = stopped || (moved && changed);
+
+          // 如果当前在输入法组字状态，调整处理逻辑
+          if (currentComposing) {
+            // 抑制 handleExit，避免 popup 被销毁
+            if (handleExit && !handleStart) {
+              handleExit = false;
+            }
+
+            // 如果是从无查询到有查询的状态变化（输入法完成时的情况）
+            // 将 handleStart 转换为 handleChange，避免重新创建组件
+            if (handleStart && prev.active) {
+              console.log('Converting handleStart to handleChange during composition');
+              handleStart = false;
+              handleChange = true;
+            }
+          }
 
           // Cancel when suggestion isn't active
           if (!handleStart && !handleChange && !handleExit) {
             return;
           }
 
+          console.log('suggestion update:', {
+            handleStart,
+            handleChange,
+            handleExit,
+            query: next.query,
+            prevQuery: prev.query,
+            active: next.active,
+            prevActive: prev.active,
+            composing: currentComposing
+          });
+
           const state = handleExit && !handleStart ? prev : next;
+
           const decorationNode = view.dom.querySelector(
             `[data-decoration-id="${state.decorationId}"]`
           );
@@ -239,13 +281,63 @@ export function Suggestion<I = any, TSelected = any>({
             // this can be used for building popups without a DOM node
             clientRect: decorationNode
               ? () => {
-                  // because of `items` can be asynchrounous we’ll search for the current decoration node
-                  const { decorationId } = this.key?.getState(editor.state); // eslint-disable-line
-                  const currentDecorationNode = view.dom.querySelector(
-                    `[data-decoration-id="${decorationId}"]`
-                  );
+                  const getFallbackRect = () => {
+                    try {
+                      // 获取编辑器的选择范围
+                      const { from } = editor.state.selection;
+                      const coords = view.coordsAtPos(from);
 
-                  return currentDecorationNode?.getBoundingClientRect() || null;
+                      if (coords) {
+                        return new DOMRect(coords.left, coords.top, 0, coords.bottom - coords.top);
+                      }
+                    } catch (error) {
+                      console.warn('Error getting fallback rect:', error);
+                    }
+
+                    // 最后的备用方案：返回编辑器元素的位置
+                    try {
+                      const editorRect = view.dom.getBoundingClientRect();
+                      return new DOMRect(editorRect.left, editorRect.top, 0, 20);
+                    } catch (error) {
+                      console.warn('Error getting editor rect:', error);
+                      return null;
+                    }
+                  };
+
+                  try {
+                    // because of `items` can be asynchrounous we'll search for the current decoration node
+                    const pluginState = this.key?.getState(editor.state);
+                    if (!pluginState?.decorationId || !pluginState.active) {
+                      return getFallbackRect();
+                    }
+
+                    const currentDecorationNode = view.dom.querySelector(
+                      `[data-decoration-id="${pluginState.decorationId}"]`
+                    );
+
+                    // 确保节点存在且仍在 DOM 中
+                    if (!currentDecorationNode || !document.contains(currentDecorationNode)) {
+                      return getFallbackRect();
+                    }
+
+                    // 获取位置信息并验证有效性
+                    const rect = currentDecorationNode.getBoundingClientRect();
+
+                    // 检查返回的位置信息是否有效
+                    if (
+                      !rect ||
+                      rect.width === 0 ||
+                      rect.height === 0 ||
+                      (rect.top === 0 && rect.left === 0 && rect.bottom === 0 && rect.right === 0)
+                    ) {
+                      return getFallbackRect();
+                    }
+
+                    return rect;
+                  } catch (error) {
+                    console.warn('Error in clientRect function:', error);
+                    return getFallbackRect();
+                  }
                 }
               : null
           };
@@ -259,10 +351,12 @@ export function Suggestion<I = any, TSelected = any>({
           }
 
           if (handleChange || handleStart) {
+            console.log('fetching items for query:', state.query);
             props.items = await items({
               editor,
               query: state.query
             });
+            console.log('items fetched:', props.items.length);
           }
 
           if (handleExit) {
@@ -270,10 +364,12 @@ export function Suggestion<I = any, TSelected = any>({
           }
 
           if (handleChange) {
+            console.log('calling onUpdate with items:', props.items.length);
             renderer?.onUpdate?.(props);
           }
 
           if (handleStart) {
+            console.log('calling onStart with items:', props.items.length);
             renderer?.onStart?.(props);
           }
         },
@@ -315,17 +411,17 @@ export function Suggestion<I = any, TSelected = any>({
       // Apply changes to the plugin state from a view transaction.
       apply(transaction, prev, _oldState, state) {
         const { isEditable } = editor;
-        const { composing } = editor.view;
+        // 使用自定义的 composing 状态提供器，如果没有则回退到默认的 editor.view.composing
+        const composing = getComposingState ? getComposingState() : editor.view.composing;
         const { selection } = transaction;
         const { empty, from } = selection;
         const next = { ...prev };
-
         next.composing = composing;
 
         // We can only be suggesting if the view is editable, and:
         //   * there is no selection, or
         //   * a composition is active (see: https://github.com/ueberdosis/tiptap/issues/1449)
-        if (isEditable && (empty || editor.view.composing)) {
+        if (isEditable && (empty || composing)) {
           // Reset active state if we just left the previous suggestion range
           if ((from < prev.range.from || from > prev.range.to) && !composing && !prev.composing) {
             next.active = false;

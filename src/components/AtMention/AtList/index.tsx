@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import classnames from 'classnames';
 import Highlight from '../Highlight';
 import styles from './index.module.less';
@@ -85,6 +85,17 @@ const AtListGroup: React.FC<AtListGroupProps> = ({
 
 const AtList: React.FC<MentionListPureDisplayProps> = (props) => {
   const { query, list, selectedIndex, onItemSelect, registerItemRef } = props;
+  console.log('query,list', query, list);
+
+  // 添加调试日志监控 props 变化
+  useEffect(() => {
+    console.log('AtList props changed:', {
+      query,
+      listLength: list?.length,
+      selectedIndex,
+      list: list
+    });
+  }, [query, list, selectedIndex]);
 
   const id2IndexMap = useMemo(() => {
     return list.reduce((acc, item, index) => {

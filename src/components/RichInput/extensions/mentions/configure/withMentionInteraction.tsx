@@ -47,7 +47,16 @@ export function withMentionInteraction(
 
     const { items, command, text, onSelect, fieldNames } = props;
 
-    const list = React.useMemo(() => mapFieldNames(items, fieldNames), [items, fieldNames]);
+    const list = React.useMemo(() => {
+      const mappedList = mapFieldNames(items, fieldNames);
+      console.log('withMentionInteraction: list mapped', {
+        originalItems: items,
+        mappedList,
+        itemsLength: items?.length,
+        mappedLength: mappedList?.length
+      });
+      return mappedList;
+    }, [items, fieldNames]);
 
     // 选择项目
     const selectItem = useCallback(
@@ -142,7 +151,9 @@ export function withMentionInteraction(
     return <WrappedComponent {...enhancedProps} />;
   });
 
-  EnhancedComponent.displayName = `withMentionInteraction(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+  EnhancedComponent.displayName = `withMentionInteraction(${
+    WrappedComponent.displayName || WrappedComponent.name || 'Component'
+  })`;
 
   return EnhancedComponent;
 }

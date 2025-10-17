@@ -61,15 +61,21 @@ export function createMentionConfigure(
   // 创建composition状态管理器
   const compositionManager = enableCustomCompositionState ? new CompositionStateManager() : null;
 
+  let popup: any;
+  let reactRenderer: any;
+  let isDestroyed = false;
+  let updateTimeout: NodeJS.Timeout | null = null;
+
   const onRender = () => {
-    let popup: any;
-    let reactRenderer: any;
-    let isDestroyed = false;
     return {
       onStart: (props: any) => {
-        if (!props.clientRect) {
-          return;
-        }
+        console.log('onStart called with props:', {
+          query: props.query,
+          items: props.items,
+          itemsLength: props.items?.length,
+          clientRect: !!props.clientRect
+        });
+
         isDestroyed = false;
         if (opts.onSelect) {
           props.onSelect = opts.onSelect;
@@ -88,10 +94,26 @@ export function createMentionConfigure(
           editor: props.editor
         });
 
+        // 创建 popup，如果 clientRect 不存在则使用备用定位
+
+        // 备用策略：使用编辑器位置
+        const getFallbackRect = () => {
+          try {
+            const editorRect = props.editor?.view?.dom?.getBoundingClientRect();
+            if (editorRect) {
+              return new DOMRect(editorRect.left, editorRect.bottom, 0, 20);
+            }
+          } catch (error) {
+            console.warn('Error getting editor rect:', error);
+          }
+          // 最后的备用方案
+          return new DOMRect(100, 100, 0, 20);
+        };
+
         popup = tippy('body', {
           arrow: false,
           theme: 'light',
-          getReferenceClientRect: props.clientRect,
+          getReferenceClientRect: props.clientRect ?? getFallbackRect,
           appendTo: () => document.body,
           content: reactRenderer.element,
           showOnCreate: true,
@@ -108,15 +130,60 @@ export function createMentionConfigure(
         return popup;
       },
       onUpdate: (props: any) => {
-        reactRenderer.updateProps(props);
+        console.log('onUpdate called with props:', {
+          query: props.query,
+          items: props.items,
+          itemsLength: props.items?.length,
+          clientRect: !!props.clientRect,
+          composing: compositionManager?.getComposingState()
+        });
 
-        if (!props.clientRect) {
+        // 立即更新组件 props，确保数据及时传递到组件
+        if (reactRenderer) {
+          reactRenderer.updateProps(props);
+        } else {
+          console.warn('onUpdate: reactRenderer is null, cannot update props');
           return;
         }
 
-        popup[0].setProps({
-          getReferenceClientRect: props.clientRect
-        });
+        // 如果没有 popup，就无需处理位置更新
+        if (!popup || !popup[0]) {
+          console.warn('onUpdate: no popup instance, skipping position update');
+          return;
+        }
+
+        // 在输入法期间，避免频繁的位置更新
+        if (compositionManager?.getComposingState()) {
+          console.log('onUpdate: composition in progress, skipping position update');
+          return;
+        }
+
+        // 清除之前的位置更新定时器
+        if (updateTimeout) {
+          clearTimeout(updateTimeout);
+        }
+
+        // 位置更新使用防抖，但不影响组件数据更新
+        if (!props.clientRect) {
+          console.warn('onUpdate: clientRect is null, skipping position update only');
+          return;
+        }
+
+        // 使用防抖机制来避免频繁更新位置
+        updateTimeout = setTimeout(() => {
+          if (isDestroyed || !popup || !popup[0]) {
+            return;
+          }
+
+          // 只在有效的位置信息时才更新 tippy
+          try {
+            popup[0].setProps({
+              getReferenceClientRect: props.clientRect
+            });
+          } catch (error) {
+            console.warn('onUpdate: Error updating tippy position:', error);
+          }
+        }, 16); // 约 60fps
       },
       onKeyDown: (props: any) => {
         if (props.event.key === 'Escape') {
@@ -127,23 +194,53 @@ export function createMentionConfigure(
 
         return reactRenderer.ref?.onKeyDown(props);
       },
-      onExit: () => {
-        if (isDestroyed) {
-          console.warn('已经卸载了！！');
+      onExit: (props: any) => {
+        // 清理防抖定时器
+        if (updateTimeout) {
+          clearTimeout(updateTimeout);
+          updateTimeout = null;
+        }
+
+        // 如果在输入法组字期间，延迟销毁 popup，避免影响输入体验
+        if (compositionManager?.getComposingState()) {
+          // 设置一个短暂的延迟，等待输入法完成
+          setTimeout(() => {
+            if (!compositionManager?.getComposingState() && !isDestroyed) {
+              if (popup && popup[0]) {
+                popup[0].destroy();
+              }
+              if (reactRenderer) {
+                reactRenderer.destroy();
+              }
+              isDestroyed = true;
+            }
+          }, 100);
           return;
         }
 
-        isDestroyed = true;
-        if (popup && popup[0]) {
-          popup[0].destroy();
+        if (isDestroyed) {
+          console.warn('Popup already destroyed');
+          return;
         }
-        if (reactRenderer) {
-          reactRenderer.destroy();
-        }
+
         // 停止监听composition事件
         if (compositionManager) {
           compositionManager.stopListening();
         }
+
+        // 安全销毁 popup 和 renderer
+        try {
+          if (popup && popup[0]) {
+            popup[0].destroy();
+          }
+          if (reactRenderer) {
+            reactRenderer.destroy();
+          }
+        } catch (error) {
+          console.warn('Error destroying popup or renderer:', error);
+        }
+
+        isDestroyed = true;
       }
     };
   };
@@ -213,35 +310,25 @@ export function createMentionConfigure(
       items: wrappedItems,
       render,
       command,
-      allowSpaces: true,
+      allowSpaces: false,
+      // 集成自定义的 composition 状态管理器到 suggestion 核心逻辑中
+      getComposingState: compositionManager
+        ? () => compositionManager.getComposingState()
+        : undefined
       //   findSuggestionMatch: findSuggestionMatch
-      allow: (props: { editor: Editor; state: any; range: Range; isActive?: boolean }) => {
-        // 使用自定义composition状态管理器进行判断
-        if (compositionManager) {
-          const isComposing = compositionManager.getComposingState();
-          console.log(
-            'Custom composition state:',
-            isComposing,
-            'Tiptap composing:',
-            props.editor?.view?.composing
-          );
+      //   allow: (props: { editor: Editor; state: any; range: Range; isActive?: boolean }) => {
+      //     // 如果使用了自定义 composition 状态管理器，核心逻辑已经处理了 composing 状态
+      //     // 这里只需要处理其他自定义逻辑
+      //     if (compositionManager) {
+      //       // 触发编辑器重新渲染，确保 UI 状态同步
+      //       requestAnimationFrame(() => {
+      //         props.editor?.view?.dom.dispatchEvent(new Event('click'));
+      //       });
+      //     }
 
-          if (isComposing) {
-            return false; // 在composition期间不显示mention列表
-          }
-          requestAnimationFrame(() => {
-            props.editor?.view?.dom.dispatchEvent(new Event('click'));
-          });
-        } else {
-          // 回退到原有逻辑
-          if (props.editor?.view?.composing) {
-            return false;
-          }
-        }
-
-        // 其他自定义逻辑
-        return true;
-      }
+      //     // 其他自定义逻辑
+      //     return true;
+      //   }
     }
   };
 }
