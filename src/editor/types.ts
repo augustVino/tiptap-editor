@@ -4,6 +4,9 @@
  */
 
 import type { Editor as TiptapEditor } from '@tiptap/core'
+import type { Doc } from 'yjs'
+import type { WebsocketProvider } from 'y-websocket'
+import type { Awareness } from 'y-protocols/awareness'
 import type { EditorConfig, EditorState } from '../types'
 
 /**
@@ -77,17 +80,22 @@ export interface UseEditorOptions {
   onChange?: (content: string) => void
 
   /** 协作配置（可选） */
-  collaboration?: {
-    /** Yjs 文档实例 */
-    ydoc: any
-    /** WebSocket Provider 实例（用于 CollaborationCursor） */
-    wsProvider: any
-    /** Awareness 实例（用于用户状态管理） */
-    awareness?: any
-    /** 当前用户信息 */
-    user: {
-      name: string
-      color: string
-    }
+  collaboration?: CollaborationConfig
+}
+
+/**
+ * 协作编辑配置
+ */
+export interface CollaborationConfig {
+  /** Yjs 文档实例 */
+  ydoc: Doc
+  /** WebSocket Provider 实例（用于 CollaborationCursor） */
+  wsProvider: WebsocketProvider
+  /** Awareness 实例（用于用户状态管理） */
+  awareness?: Awareness
+  /** 当前用户信息 */
+  user: {
+    name: string
+    color: string
   }
 }

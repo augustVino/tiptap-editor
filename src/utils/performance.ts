@@ -3,6 +3,11 @@
  * @module utils/performance
  */
 
+import { createLogger } from './logger'
+import { PERFORMANCE } from '../config/constants'
+
+const logger = createLogger('Performance')
+
 /**
  * 性能指标类型
  */
@@ -23,7 +28,7 @@ class PerformanceMonitor {
   private metrics: Map<string, number> = new Map()
   private readonly enabled: boolean
 
-  constructor(enabled = true) {
+  constructor(enabled = PERFORMANCE.ENABLE_MONITORING) {
     this.enabled = enabled && typeof performance !== 'undefined'
   }
 
@@ -46,7 +51,7 @@ class PerformanceMonitor {
 
     const startTime = this.metrics.get(name)
     if (startTime === undefined) {
-      console.warn(`Performance metric "${name}" was not started`)
+      logger.warn(`Performance metric "${name}" was not started`)
       return null
     }
 
@@ -68,9 +73,15 @@ class PerformanceMonitor {
   log(name: string, callback?: (metric: PerformanceMetric) => void): void {
     const metric = this.end(name)
     if (metric) {
-      console.log(
-        `[Performance] ${metric.name}: ${metric.duration.toFixed(2)}ms`
-      )
+      const message = `${metric.name}: ${metric.duration.toFixed(2)}ms`
+
+      // 根据阈值决定日志级别
+      if (metric.duration > PERFORMANCE.SLOW_OPERATION_THRESHOLD) {
+        logger.warn(message, metric)
+      } else {
+        logger.debug(message, metric)
+      }
+
       callback?.(metric)
     }
   }

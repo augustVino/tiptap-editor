@@ -49,30 +49,24 @@ pnpm type-check
    - **AwarenessManager**: 管理用户在线状态和光标位置
    - 支持 IndexedDB 离线持久化
 
-3. **RichInput** (`src/components/RichInput/`)
-   - 项目的核心可复用组件，封装了完整的 TipTap 编辑器功能
-   - 通过 `useTiptapEditor` hook 管理编辑器实例和扩展
-   - 支持三种内容输出类型：`html`、`text`、`json`
-   - 提供 ref API 用于外部控制编辑器（focus、clear、setContent 等）
+3. **配置系统** (`src/config/`)
+   - **env.ts**: 类型安全的环境变量管理
+   - **constants.ts**: 集中管理所有常量配置（WebSocket、编辑器、CSS类名等）
 
-4. **自定义 TipTap 核心** (`src/core/`)
-   - `suggestion/`: 修改自 `@tiptap/suggestion`，用于实现自定义建议逻辑
-   - `extension-mention/`: 修改自 `@tiptap/extension-mention`，实现自定义 mention 功能
-   - 这些是从官方包复制并修改的版本，用于实现特定业务需求
+4. **工具函数** (`src/utils/`)
+   - **logger.ts**: 统一的日志系统，支持模块化日志和环境控制
+   - **performance.ts**: 性能监控工具
+   - **colorPalette.ts**: 用户颜色生成工具
 
-5. **Mention 扩展系统** (`src/components/RichInput/extensions/mentions/`)
-   - `MentionNodeView/`: 自定义 mention 节点的渲染
-   - `configure/`: mention 交互逻辑配置
-     - `withMentionInteraction.tsx`: 高阶组件，为列表组件添加交互功能（键盘导航、选择等）
-     - `CompositionStateManager.ts`: 管理中文输入法状态
-     - `List/index.tsx`: mention 列表的默认实现
-   - 支持自定义列表组件和渲染组件
+5. **通用组件** (`src/components/common/`)
+   - **ErrorBoundary**: React 错误边界组件
+   - **NetworkStatus**: 网络状态指示器
+   - **Button/Tooltip**: 基础 UI 组件
 
-6. **AtMention 组件** (`src/components/AtMention/`)
-   - 业务层的 mention 实现示例
-   - `AtList`: 显示客户和职位的 mention 列表
-   - `AtMentionTag`: mention 标签的渲染
-   - `Highlight`: 高亮搜索关键词的工具组件
+6. **UI 组件**
+   - **Toolbar** (`src/components/Toolbar/`): 编辑器工具栏
+   - **Sidebar** (`src/components/Sidebar/`): 协作者列表
+   - **Table** (`src/components/Table/`): 表格浮动菜单
 
 ### 关键设计模式
 
@@ -84,28 +78,27 @@ pnpm type-check
      - 协作者列表
      - 连接状态
 
-2. **扩展配置系统**
-   - 通过 `MentionExtensionOption` 配置 mention 功能
-   - 每个 mention 类型需要提供：
-     - `name`: 唯一标识符
-     - `suggestion`: 建议配置（触发字符、items 获取函数等）
-     - `listComponent`: 列表渲染组件
-     - `renderComponent`: mention 标签渲染组件
-     - `addSourceAttr`: 是否添加源数据属性
+2. **环境变量管理**
+   - 通过 `.env.development` 和 `.env.production` 配置不同环境
+   - `src/config/env.ts` 提供类型安全的访问接口
+   - 支持 WebSocket URL、日志开关、重连配置等
 
-3. **响应式扩展更新**
-   - `useTiptapEditor` 监听 mentions 配置变化，动态更新编辑器扩展
-   - 使用 `useLatest` hook 确保回调始终引用最新值
+3. **统一日志系统**
+   - 模块化日志：每个模块创建独立 logger
+   - 环境控制：开发环境显示所有日志，生产环境仅显示警告和错误
+   - 彩色输出：DEBUG、INFO、WARN、ERROR 不同颜色
 
-4. **内容类型处理**
-   - 根据 `submitType` 参数决定内容的获取和比较方式
-   - 支持受控和非受控模式
+4. **类型安全**
+   - 启用 TypeScript strict 模式
+   - 完整的类型定义，消除所有 `any` 类型
+   - 100% 类型检查通过
 
 ## TypeScript 配置
 
-- 当前 TypeScript 配置较为宽松（`strict: false`）
-- 允许隐式 any、未使用变量等
-- 如需添加类型检查，可逐步收紧 `tsconfig.json` 配置
+- ✅ 已启用 TypeScript **strict 模式**
+- ✅ 启用 `noUnusedLocals`、`noUnusedParameters`、`noImplicitReturns`
+- ✅ **0 个类型错误**，100% 类型安全
+- ✅ 完整的类型定义，无 `any` 类型
 
 ## 样式系统
 
@@ -116,18 +109,27 @@ pnpm type-check
 
 ## 注意事项
 
-1. **自定义核心模块**
-   - `src/core/` 中的代码是从 TipTap 官方包修改而来
-   - 更新时需谨慎，避免与官方版本混淆
+1. **环境变量**
+   - 开发环境使用 `.env.development`
+   - 生产环境使用 `.env.production`
+   - 通过 `src/config/env.ts` 访问配置，避免直接使用 `import.meta.env`
 
-2. **Mention 交互**
-   - `withMentionInteraction` HOC 为列表组件提供完整的键盘和鼠标交互
-   - 处理中文输入法时使用 `CompositionStateManager` 避免冲突
+2. **日志系统**
+   - 使用 `createLogger(moduleName)` 创建模块专属 logger
+   - 开发环境显示所有日志，生产环境仅显示警告和错误
+   - **避免使用 `console.log`**，统一使用 logger
 
-3. **异步数据加载**
-   - `suggestion.items` 函数支持异步返回
-   - 示例见 `App.tsx` 中的 `getAtListAjax` 实现
+3. **错误处理**
+   - 所有用户交互区域已用 `ErrorBoundary` 包裹
+   - 错误会被优雅地捕获并显示友好的 UI
+   - 错误日志会自动记录到 logger
 
-4. **性能优化**
-   - mention 配置使用 `useMemo` 缓存
-   - 大量数据时考虑虚拟滚动（当前未实现）
+4. **类型安全**
+   - 项目已启用 TypeScript strict 模式
+   - 所有核心模块均有完整类型定义
+   - **避免使用 `any` 类型**，使用 `unknown` 或具体类型
+
+5. **性能优化**
+   - 使用 `useMemo` 和 `useCallback` 缓存计算和回调
+   - logger 在生产环境自动关闭 debug 日志
+   - 性能监控工具会标记慢操作（>100ms）

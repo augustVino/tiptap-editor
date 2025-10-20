@@ -6,16 +6,22 @@
 
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import type { Editor as TiptapEditor } from '@tiptap/core'
+import type { Doc } from 'yjs'
+import type { WebsocketProvider } from 'y-websocket'
+import type { Awareness } from 'y-protocols/awareness'
 import { YjsProvider, useYjsContext } from '../collaboration/YjsProvider'
 import { AwarenessManager } from '../collaboration/AwarenessManager'
-import { useEditor } from './useEditor'
+import { useEditor, type CollaborationConfig } from './useEditor'
 import { getConsistentColor } from '../utils/colorPalette'
 import { ConnectionStatus } from '../types'
+import { createLogger } from '../utils/logger'
 import type { AwarenessUser } from '../collaboration/types'
 import type {
   CollaborativeEditorProviderProps,
   CollaborativeEditorContextValue
 } from './CollaborativeEditorProvider.types'
+
+const logger = createLogger('CollaborativeEditorProvider')
 
 /**
  * 协作编辑器上下文
@@ -93,10 +99,10 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
 
   // 监听 Yjs 文档更新（调试）
   useEffect(() => {
-    const handleUpdate = (update: Uint8Array, origin: any) => {
-      console.log('[CollaborativeEditorProvider] Yjs document updated', {
+    const handleUpdate = (update: Uint8Array, origin: unknown) => {
+      logger.debug('Yjs document updated', {
         updateSize: update.length,
-        origin: origin?.constructor?.name || 'unknown'
+        origin: (origin as {constructor?: {name?: string}})?.constructor?.name || 'unknown'
       })
     }
 
@@ -138,6 +144,11 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
   }
 
   // 协作配置准备好后才渲染编辑器
+  // TypeScript 类型断言：此时这些值一定不为 null（因为 collaborationConfig 存在）
+  if (!wsProvider || !awareness || !awarenessManager) {
+    throw new Error('CollaborativeEditorProvider: required providers are not initialized')
+  }
+
   return (
     <EditorWrapper
       documentId={documentId}
@@ -163,27 +174,32 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
 }
 
 /**
- * 编辑器包装组件（只在协作配置准备好后渲染）
+ * EditorWrapper Props 接口
  */
-function EditorWrapper(props: {
+interface EditorWrapperProps {
   documentId: string
   initialContent?: string | Record<string, unknown>
   placeholder?: string
   editable?: boolean
-  collaborationConfig: any
+  collaborationConfig: CollaborationConfig
   onEditorReady?: (editor: TiptapEditor) => void
   onChange?: (content: string) => void
-  ydoc: any
-  wsProvider: any
-  awareness: any
-  awarenessManager: any
+  ydoc: Doc
+  wsProvider: WebsocketProvider
+  awareness: Awareness
+  awarenessManager: AwarenessManager
   collaborators: AwarenessUser[]
   currentUser: { id: string; name: string; color: string }
   connectionStatus: ConnectionStatus
   isConnected: boolean
   isSynced: boolean
   children: React.ReactNode
-}) {
+}
+
+/**
+ * 编辑器包装组件（只在协作配置准备好后渲染）
+ */
+function EditorWrapper(props: EditorWrapperProps) {
   const {
     documentId,
     initialContent,

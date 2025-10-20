@@ -8,8 +8,10 @@ import React, { createContext, useContext, useEffect, useState, useMemo } from '
 import * as Y from 'yjs'
 import { WebsocketProvider } from 'y-websocket'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import * as awarenessProtocol from 'y-protocols/awareness'
+import { createLogger } from '../utils/logger'
 import type { YjsProviderProps, YjsContextValue } from './types'
+
+const logger = createLogger('YjsProvider')
 
 /**
  * Yjs Context
@@ -38,7 +40,7 @@ export function YjsProvider(props: YjsProviderProps): React.ReactElement {
   useEffect(() => {
     if (!webSocket) return
 
-    console.log('[YjsProvider] Initializing WebSocket provider', {
+    logger.info('Initializing WebSocket provider', {
       url: webSocket.url,
       roomName: webSocket.roomName || documentId,
       enableAwareness: webSocket.enableAwareness !== false
@@ -57,30 +59,28 @@ export function YjsProvider(props: YjsProviderProps): React.ReactElement {
 
     provider.on('status', ({ status }: { status: string }) => {
       setIsConnected(status === 'connected')
-      console.log('[YjsProvider] WebSocket status:', status)
+      logger.info('WebSocket status changed', { status })
     })
 
     provider.on('sync', (isSynced: boolean) => {
       setIsSynced(isSynced)
-      console.log('[YjsProvider] Sync status:', isSynced)
+      logger.info('Sync status changed', { isSynced })
     })
 
     // 监听 WebSocket 连接错误
-    provider.on('connection-error', (event: Event) => {
-      console.error('[YjsProvider] WebSocket connection error:', event)
+    provider.on('connection-error', (event) => {
+      logger.error('WebSocket connection error', event)
     })
 
     // 监听 WebSocket 关闭
-    provider.on('connection-close', (event: Event) => {
-      console.warn('[YjsProvider] WebSocket connection closed:', event)
+    provider.on('connection-close', (event) => {
+      logger.warn('WebSocket connection closed', event)
     })
 
     // 添加调试信息
-    console.log('[YjsProvider] WebSocket provider created', {
+    logger.debug('WebSocket provider created', {
       hasDoc: !!provider.doc,
-      hasAwareness: !!provider.awareness,
-      doc: provider.doc,
-      awareness: provider.awareness
+      hasAwareness: !!provider.awareness
     })
 
     setWsProvider(provider)
@@ -101,7 +101,7 @@ export function YjsProvider(props: YjsProviderProps): React.ReactElement {
     )
 
     provider.on('synced', () => {
-      console.log('[YjsProvider] IndexedDB synced')
+      logger.info('IndexedDB synced')
     })
 
     setIndexedDBProvider(provider)

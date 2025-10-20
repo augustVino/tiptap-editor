@@ -3,11 +3,10 @@
  * @module collaboration/AwarenessManager
  */
 
-import * as Y from 'yjs'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import type { AwarenessUser } from './types'
 
-type EventHandler = (...args: any[]) => void
+type EventHandler = (...args: unknown[]) => void
 
 /**
  * User information for awareness
@@ -33,12 +32,10 @@ export interface CursorPosition {
 export class AwarenessManager {
   public awareness: awarenessProtocol.Awareness
   private eventHandlers: Map<string, Set<EventHandler>>
-  private currentUser: UserInfo
 
   constructor(awareness: awarenessProtocol.Awareness, user: UserInfo) {
     this.awareness = awareness
     this.eventHandlers = new Map()
-    this.currentUser = user
 
     // Set local user state
     this.awareness.setLocalState({
@@ -99,7 +96,7 @@ export class AwarenessManager {
     this.awareness.getStates().forEach((state, clientId) => {
       if (state?.user) {
         users.push({
-          id: state.user.id,
+          id: clientId.toString(),
           name: state.user.name,
           color: state.user.color,
           cursor: state.cursor
@@ -130,7 +127,7 @@ export class AwarenessManager {
   /**
    * Emit event
    */
-  private emit(event: string, ...args: any[]) {
+  private emit(event: string, ...args: unknown[]) {
     this.eventHandlers.get(event)?.forEach(handler => {
       handler(...args)
     })

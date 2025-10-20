@@ -4,20 +4,20 @@
  * @module components/Sidebar/CollaboratorList
  */
 
-import React from 'react'
-import { CollaboratorAvatar } from './CollaboratorAvatar'
-import type { AwarenessUser } from '../../collaboration/types'
-import styles from './CollaboratorList.module.less'
+import React from 'react';
+import { CollaboratorAvatar } from './CollaboratorAvatar';
+import type { AwarenessUser } from '../../collaboration/types';
+import styles from './CollaboratorList.module.less';
 
 export interface CollaboratorListProps {
   /** List of online collaborators */
-  collaborators: AwarenessUser[]
+  collaborators: AwarenessUser[];
   /** Current user ID */
-  currentUserId?: string
+  currentUserId?: string;
 }
 
 export function CollaboratorList(props: CollaboratorListProps): React.ReactElement {
-  const { collaborators, currentUserId } = props
+  const { collaborators, currentUserId } = props;
 
   if (collaborators.length === 0) {
     return (
@@ -25,17 +25,15 @@ export function CollaboratorList(props: CollaboratorListProps): React.ReactEleme
         <h3 className={styles.title}>在线用户</h3>
         <div className={styles.emptyState}>暂无其他用户在线</div>
       </div>
-    )
+    );
   }
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>
-        在线用户 ({collaborators.length})
-      </h3>
+      <h3 className={styles.title}>在线用户 ({collaborators.length})</h3>
       <div className={styles.list}>
         {collaborators.map((collaborator) => {
-          const isCurrentUser = collaborator.id === currentUserId
+          const isCurrentUser = collaborator.id === currentUserId;
 
           return (
             <div
@@ -52,9 +50,9 @@ export function CollaboratorList(props: CollaboratorListProps): React.ReactEleme
                 {isCurrentUser && ' (你)'}
               </span>
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
