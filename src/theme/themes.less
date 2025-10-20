@@ -1,0 +1,51 @@
+/**
+ * Theme CSS Variables
+ *
+ * Defines CSS custom properties for all theme colors.
+ * These variables are dynamically updated by ThemeProvider
+ * to enable instant theme switching without React re-renders.
+ */
+
+:root {
+  /* Background colors */
+  --theme-background: #ffffff;
+  --theme-backgroundSecondary: #f5f5f5;
+  --theme-backgroundTertiary: #e8e8e8;
+
+  /* Text colors */
+  --theme-text: #1a1a1a;
+  --theme-textSecondary: #4a4a4a;
+  --theme-textMuted: #8a8a8a;
+
+  /* Border colors */
+  --theme-border: #d0d0d0;
+  --theme-borderLight: #e0e0e0;
+
+  /* Interactive colors */
+  --theme-primary: #1890ff;
+  --theme-primaryHover: #40a9ff;
+
+  /* Functional colors */
+  --theme-success: #52c41a;
+  --theme-warning: #faad14;
+  --theme-error: #f5222d;
+
+  /* Editor-specific colors */
+  --theme-highlight: #fff566;
+  --theme-codeBackground: #f0f0f0;
+  --theme-blockquoteBorder: #d0d0d0;
+
+  /* Smooth transitions for theme changes */
+  --theme-transition-duration: 0.2s;
+  --theme-transition-timing: ease;
+}
+
+/**
+ * Global transition for all themed elements
+ * Applied to commonly themed properties for smooth theme switching
+ */
+* {
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+    color var(--theme-transition-duration) var(--theme-transition-timing),
+    border-color var(--theme-transition-duration) var(--theme-transition-timing);
+}

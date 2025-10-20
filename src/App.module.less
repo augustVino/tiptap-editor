@@ -1,121 +1,25 @@
 /**
- * App 主样式
+ * App 主样式 - TipTap官方模板风格
  */
 
 .app {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: #f8f9fa;
-}
-
-.header {
-  padding: 24px 32px;
-  background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 100%);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h1 {
-    margin: 0 0 8px 0;
-    font-size: 28px;
-    font-weight: 600;
-  }
-
-  p {
-    margin: 0;
-    font-size: 14px;
-    opacity: 0.9;
-  }
-}
-
-.modeSwitch {
-  display: flex;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 4px;
-  border-radius: 8px;
-
-  button {
-    padding: 10px 20px;
-    border: none;
-    background: transparent;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.2s;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    &.active {
-      background: #ffffff;
-      color: #4ecdc4;
-      font-weight: 600;
-    }
-  }
-}
-
-.collaborativeContainer {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.userInput {
-  background: #fff3cd;
-  border: 1px solid #ffeeba;
-  padding: 16px 24px;
-  margin-bottom: 16px;
-  border-radius: 6px;
-
-  label {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 500;
-    color: #856404;
-    margin-bottom: 8px;
-
-    input {
-      padding: 6px 12px;
-      border: 1px solid #ffeeba;
-      border-radius: 4px;
-      font-size: 14px;
-      background: #ffffff;
-
-      &:focus {
-        outline: none;
-        border-color: #4ecdc4;
-      }
-    }
-  }
-}
-
-.hint {
-  margin: 0;
-  font-size: 13px;
-  color: #856404;
-
-  code {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: 'Courier New', monospace;
-  }
+  background: var(--theme-background, rgb(14, 14, 17));
 }
 
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px 32px;
+  overflow: hidden;
+}
+
+.collaborativeContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 

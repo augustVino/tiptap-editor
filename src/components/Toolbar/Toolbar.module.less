@@ -1,14 +1,90 @@
 /**
- * 工具栏样式
+ * 工具栏样式 - TipTap官方模板风格
  */
 
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+  gap: 4px;
+  padding: 0 8px;
+  height: 44px;
+  width: 100%;
+  background: var(--theme-background, rgb(14, 14, 17));
+  border-bottom: 1px solid var(--theme-borderLight, rgba(232, 232, 253, 0.05));
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  /* Generic button styling for all buttons in toolbar */
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 8px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--theme-textSecondary, rgba(247, 247, 253, 0.64));
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.1s ease;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
+      /* Optimize SVG rendering for sharpness */
+      shape-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    &:hover:not(:disabled) {
+      background: var(--theme-backgroundTertiary, rgba(244, 244, 245, 1));
+      color: var(--theme-text, rgb(34, 35, 37));
+    }
+
+    &:active:not(:disabled) {
+      background: var(--theme-border, rgba(37, 39, 45, 0.15));
+    }
+
+    /* Active state for formatting buttons */
+    &.active {
+      background: var(--theme-activeButtonBg, rgba(231, 231, 243, 0.07));
+      color: var(--theme-primary, rgb(122, 82, 255));
+
+      &:hover {
+        background: var(--theme-activeButtonBg, rgba(231, 231, 243, 0.07));
+        color: var(--theme-primary, rgb(122, 82, 255));
+      }
+    }
+
+    /* Disabled state */
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+
+      &:hover {
+        background: transparent;
+        color: var(--theme-textMuted, rgba(125, 127, 130, 0.75));
+      }
+    }
+  }
+
+  /* 统一 toolbar-button 组件的 active 状态样式 */
+  :global(.toolbar-button--active) {
+    background: var(--theme-activeButtonBg, rgba(231, 231, 243, 0.07)) !important;
+    color: var(--theme-primary, rgb(122, 82, 255)) !important;
+
+    &:hover {
+      background: var(--theme-activeButtonBg, rgba(231, 231, 243, 0.07)) !important;
+      color: var(--theme-primary, rgb(122, 82, 255)) !important;
+    }
+  }
 }
 
 :global {
@@ -18,43 +94,49 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    padding: 0;
-    border: 1px solid transparent;
-    border-radius: 4px;
+    padding: 8px;
+    border: none;
+    border-radius: 12px;
     background: transparent;
-    color: #495057;
+    color: var(--theme-textSecondary, rgba(247, 247, 253, 0.64));
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.1s ease;
 
-    &:hover {
-      background: #e9ecef;
-      border-color: #dee2e6;
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
     }
 
-    &:active {
-      background: #dee2e6;
+    &:hover:not(&--disabled) {
+      background: var(--theme-backgroundTertiary, rgba(244, 244, 245, 1));
+      color: var(--theme-text, rgb(34, 35, 37));
+    }
+
+    &:active:not(&--disabled) {
+      background: var(--theme-border, rgba(37, 39, 45, 0.15));
     }
 
     &--active {
-      background: #4ecdc4;
-      color: #ffffff;
-      border-color: #4ecdc4;
+      background: var(--theme-activeButtonBg, rgba(231, 231, 243, 0.07));
+      color: var(--theme-primary, rgb(122, 82, 255));
 
       &:hover {
-        background: #45b7d1;
-        border-color: #45b7d1;
+        background: var(--theme-activeButtonBg, rgba(231, 231, 243, 0.07));
+        color: var(--theme-primary, rgb(122, 82, 255));
       }
     }
 
     &--disabled {
-      opacity: 0.4;
+      opacity: 0.3;
       cursor: not-allowed;
 
       &:hover {
         background: transparent;
-        border-color: transparent;
+        color: var(--theme-textSecondary, rgba(247, 247, 253, 0.64));
       }
     }
   }
@@ -62,8 +144,8 @@
   .toolbar-divider {
     width: 1px;
     height: 24px;
-    background: #dee2e6;
-    margin: 0 4px;
+    background: var(--theme-border, rgba(238, 238, 246, 0.11));
+    margin: 0;
   }
 
   .formatting-tools {
