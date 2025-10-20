@@ -28,6 +28,8 @@ pnpm server
 3. 在多个浏览器标签页中打开编辑器
 4. 实时看到多人编辑效果
 
+📖 **完整测试指南**: 查看 [COLLABORATION_TESTING.md](./COLLABORATION_TESTING.md) 了解详细的功能测试清单
+
 ### 构建生产版本
 
 ```bash
