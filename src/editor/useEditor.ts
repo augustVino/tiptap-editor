@@ -13,6 +13,7 @@ import { Placeholder } from '@tiptap/extension-placeholder'
 import type { UseEditorOptions } from './types'
 import { Bold, Italic, Underline, Strike, Heading, TextAlign } from '../extensions/formatting'
 import { OrderedList, BulletList, ListItem, CodeBlock } from '../extensions/blocks'
+import { Table, TableRow, TableCell, TableHeader } from '../extensions/tables'
 import { createCollaborationExtension, createCollaborationCursorExtension } from '../extensions/collaboration'
 import { getPerformanceMonitor } from '../utils/performance'
 
@@ -70,7 +71,18 @@ export function useEditor(options: UseEditorOptions) {
       OrderedList,
       BulletList,
       ListItem,
-      CodeBlock
+      CodeBlock,
+
+      // 表格扩展
+      Table.configure({
+        resizable: true,  // 允许调整列宽
+        HTMLAttributes: {
+          class: 'tiptap-table'
+        }
+      }),
+      TableRow,
+      TableHeader,
+      TableCell
     ]
 
     // 如果启用协作，添加协作扩展

@@ -14,6 +14,9 @@ importers:
       '@tiptap/extension-bold':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
+      '@tiptap/extension-bubble-menu':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
       '@tiptap/extension-bullet-list':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/extension-list@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))
@@ -59,6 +62,15 @@ importers:
       '@tiptap/extension-table':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+      '@tiptap/extension-table-cell':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))
+      '@tiptap/extension-table-header':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))
+      '@tiptap/extension-table-row':
+        specifier: ^3.7.2
+        version: 3.7.2(@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))
       '@tiptap/extension-text':
         specifier: ^3.7.2
         version: 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))
@@ -751,6 +763,21 @@ packages:
     resolution: {integrity: sha512-I1G+4vZbCBTpAMmyVwaO8cLBJgXEf1DyEzc0B+HhTJiBa9qA9OKgRQEGFgisxu1kggjbzB6+d0+taHfjsZC1SQ==}
     peerDependencies:
       '@tiptap/core': ^3.7.2
+
+  '@tiptap/extension-table-cell@3.7.2':
+    resolution: {integrity: sha512-kudewSGmYYCD6UjndW4QVO9KCnc0rl51s25zFhk2KR97RU1NvRG2phDznGj5/oHckvROkfzMb+pFJYZHe61KWg==}
+    peerDependencies:
+      '@tiptap/extension-table': ^3.7.2
+
+  '@tiptap/extension-table-header@3.7.2':
+    resolution: {integrity: sha512-CzdtitQ7AucxeK0UNCAdekibr+3IxACjB3aDNU+7jCriYFecHE7QfDyX0eojznAMpkXJy+09E426y/MH5xa/Sg==}
+    peerDependencies:
+      '@tiptap/extension-table': ^3.7.2
+
+  '@tiptap/extension-table-row@3.7.2':
+    resolution: {integrity: sha512-3vcjWU9Ps8EtaDNcsf8/TvZzQHonFYR0CzJXMeqzCNjKra28wDZEmel32T2xM93atZ+9LT2iX0iX1LJkI2NyiQ==}
+    peerDependencies:
+      '@tiptap/extension-table': ^3.7.2
 
   '@tiptap/extension-table@3.7.2':
     resolution: {integrity: sha512-1sBOrYHoMDcygPSuBfunp/bw21rea/r7L8AQaeZ/NIo2RZ6GXWxI9sRzTkLWijZ4xC3md0O/ylmvxvLL4V0SVA==}
@@ -1859,16 +1886,13 @@ snapshots:
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
-    optional: true
 
   '@floating-ui/dom@1.7.4':
     dependencies:
       '@floating-ui/core': 1.7.3
       '@floating-ui/utils': 0.2.10
-    optional: true
 
-  '@floating-ui/utils@0.2.10':
-    optional: true
+  '@floating-ui/utils@0.2.10': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -2012,7 +2036,6 @@ snapshots:
       '@floating-ui/dom': 1.7.4
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
       '@tiptap/pm': 3.7.2
-    optional: true
 
   '@tiptap/extension-bullet-list@3.7.2(@tiptap/extension-list@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))':
     dependencies:
@@ -2120,6 +2143,18 @@ snapshots:
   '@tiptap/extension-strike@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))':
     dependencies:
       '@tiptap/core': 3.7.2(@tiptap/pm@3.7.2)
+
+  '@tiptap/extension-table-cell@3.7.2(@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))':
+    dependencies:
+      '@tiptap/extension-table': 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+
+  '@tiptap/extension-table-header@3.7.2(@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))':
+    dependencies:
+      '@tiptap/extension-table': 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
+
+  '@tiptap/extension-table-row@3.7.2(@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2))':
+    dependencies:
+      '@tiptap/extension-table': 3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)
 
   '@tiptap/extension-table@3.7.2(@tiptap/core@3.7.2(@tiptap/pm@3.7.2))(@tiptap/pm@3.7.2)':
     dependencies:

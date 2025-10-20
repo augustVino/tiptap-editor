@@ -12,6 +12,7 @@ import { useEditor } from '../editor/useEditor'
 import { CollaborativeToolbar } from '../components/Toolbar/CollaborativeToolbar'
 import { CollaboratorList } from '../components/Sidebar'
 import { NetworkStatus } from '../components/common'
+import { TableBubbleMenu } from '../components/Table/TableBubbleMenu'
 import { getConsistentColor } from '../utils/colorPalette'
 import { ConnectionStatus } from '../types'
 import type { AwarenessUser } from '../collaboration/types'
@@ -177,6 +178,7 @@ function EditorWrapper({
           <CollaborativeToolbar editor={editor} />
           <div className={styles.editorContent}>
             <EditorContent editor={editor} />
+            {editor && <TableBubbleMenu editor={editor} />}
           </div>
         </div>
 

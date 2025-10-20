@@ -17,6 +17,7 @@
   "dependencies": {
     "@tiptap/core": "^3.7.2",
     "@tiptap/extension-bold": "^3.7.2",
+    "@tiptap/extension-bubble-menu": "^3.7.2",
     "@tiptap/extension-bullet-list": "^3.7.2",
     "@tiptap/extension-code-block": "^3.7.2",
     "@tiptap/extension-collaboration": "^3.7.2",
@@ -32,6 +33,9 @@
     "@tiptap/extension-placeholder": "^3.7.2",
     "@tiptap/extension-strike": "^3.7.2",
     "@tiptap/extension-table": "^3.7.2",
+    "@tiptap/extension-table-cell": "^3.7.2",
+    "@tiptap/extension-table-header": "^3.7.2",
+    "@tiptap/extension-table-row": "^3.7.2",
     "@tiptap/extension-text": "^3.7.2",
     "@tiptap/extension-text-align": "^3.7.2",
     "@tiptap/extension-underline": "^3.7.2",
