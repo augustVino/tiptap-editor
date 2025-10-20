@@ -1,0 +1,54 @@
+/**
+ * Collaboration Cursor Styles
+ * Styles for displaying other users' cursors and selections
+ */
+
+// Collaboration cursor styles
+:global {
+  // 协作光标
+  .collaboration-cursor__caret {
+    position: relative;
+    margin-left: -1px;
+    margin-right: -1px;
+    border-left: 1px solid #0d0d0d;
+    border-right: 1px solid #0d0d0d;
+    word-break: normal;
+    pointer-events: none;
+  }
+
+  // 协作光标标签（显示用户名）
+  .collaboration-cursor__label {
+    position: absolute;
+    top: -1.4em;
+    left: -1px;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    user-select: none;
+    color: #fff;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px 3px 3px 0;
+    white-space: nowrap;
+  }
+
+  // 协作选区
+  .collaboration-cursor__selection {
+    opacity: 0.3;
+  }
+
+  // ProseMirror 协作光标扩展的默认样式
+  .ProseMirror {
+    .collaboration-cursor__caret {
+      position: relative;
+      margin-left: -1px;
+      margin-right: -1px;
+      border-left-width: 1px;
+      border-left-style: solid;
+      border-right-width: 1px;
+      border-right-style: solid;
+      word-break: normal;
+      pointer-events: none;
+    }
+  }
+}
