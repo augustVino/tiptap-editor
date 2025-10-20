@@ -1,0 +1,14 @@
+{
+  "name": "yjs-websocket-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Simple WebSocket server for Yjs collaboration",
+  "main": "websocket-server.js",
+  "scripts": {
+    "start": "node websocket-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "y-websocket": "^2.0.4"
+  }
+}

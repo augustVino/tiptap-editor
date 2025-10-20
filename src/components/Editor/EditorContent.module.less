@@ -1,0 +1,167 @@
+/**
+ * 编辑器内容样式
+ */
+
+.editorContentWrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background: #ffffff;
+}
+
+:global {
+  .tiptap {
+    outline: none;
+    min-height: 300px;
+
+    /* 段落样式 */
+    p {
+      margin: 0 0 1em 0;
+      line-height: 1.6;
+
+      &.is-editor-empty:first-child::before {
+        content: attr(data-placeholder);
+        color: #adb5bd;
+        pointer-events: none;
+        height: 0;
+        float: left;
+      }
+    }
+
+    /* 标题样式 */
+    h1.heading {
+      font-size: 2em;
+      font-weight: 700;
+      margin: 1em 0 0.5em 0;
+      line-height: 1.2;
+      color: #212529;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    h2.heading {
+      font-size: 1.5em;
+      font-weight: 600;
+      margin: 0.8em 0 0.4em 0;
+      line-height: 1.3;
+      color: #343a40;
+    }
+
+    h3.heading {
+      font-size: 1.25em;
+      font-weight: 600;
+      margin: 0.6em 0 0.3em 0;
+      line-height: 1.4;
+      color: #495057;
+    }
+
+    /* 格式化文本 */
+    strong.bold {
+      font-weight: 700;
+    }
+
+    em.italic {
+      font-style: italic;
+    }
+
+    u.underline {
+      text-decoration: underline;
+    }
+
+    s.strike {
+      text-decoration: line-through;
+    }
+
+    // 列表样式
+    ul.bullet-list,
+    ol.ordered-list {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+
+      li.list-item {
+        margin: 0.25rem 0;
+
+        p {
+          margin: 0;
+        }
+      }
+
+      // 嵌套列表
+      ul,
+      ol {
+        margin: 0.25rem 0;
+      }
+    }
+
+    ul.bullet-list {
+      list-style-type: disc;
+
+      ul {
+        list-style-type: circle;
+
+        ul {
+          list-style-type: square;
+        }
+      }
+    }
+
+    ol.ordered-list {
+      list-style-type: decimal;
+
+      ol {
+        list-style-type: lower-alpha;
+
+        ol {
+          list-style-type: lower-roman;
+        }
+      }
+    }
+
+    // 代码块样式
+    pre.code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 1rem 0;
+
+      code {
+        background: none;
+        color: inherit;
+        font-size: 0.9em;
+        padding: 0;
+      }
+    }
+
+    // 行内代码
+    code {
+      background: #f3f4f6;
+      color: #e83e8c;
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-size: 0.9em;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+    }
+
+    // 文本对齐
+    [style*='text-align: left'] {
+      text-align: left;
+    }
+
+    [style*='text-align: center'] {
+      text-align: center;
+    }
+
+    [style*='text-align: right'] {
+      text-align: right;
+    }
+
+    [style*='text-align: justify'] {
+      text-align: justify;
+    }
+  }
+}
