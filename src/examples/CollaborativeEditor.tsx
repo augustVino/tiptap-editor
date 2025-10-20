@@ -12,7 +12,6 @@ import {
 } from '../editor/CollaborativeEditorProvider'
 import { CollaborativeToolbar } from '../components/Toolbar/CollaborativeToolbar'
 import { CollaboratorList } from '../components/Sidebar'
-import { NetworkStatus } from '../components/common'
 import { TableBubbleMenu } from '../components/Table/TableBubbleMenu'
 import styles from './CollaborativeEditor.module.less'
 import '../components/Editor/CollaborationCursor.module.less'
@@ -33,38 +32,24 @@ function EditorUI(): React.ReactElement {
   const {
     editor,
     collaborators,
-    connectionStatus,
     awarenessManager
   } = useCollaborativeEditor()
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>协作编辑器示例</h1>
-        <NetworkStatus status={connectionStatus} />
-      </div>
-
-      <div className={styles.main}>
-        <div className={styles.editorArea}>
-          <CollaborativeToolbar editor={editor} />
-          <div className={styles.editorContent}>
-            <EditorContent editor={editor} />
-            {editor && <TableBubbleMenu editor={editor} />}
-          </div>
-        </div>
-
-        <div className={styles.sidebar}>
-          <CollaboratorList
-            collaborators={collaborators}
-            currentUserId={awarenessManager?.awareness.clientID.toString()}
-          />
+      <div className={styles.editorArea}>
+        <CollaborativeToolbar editor={editor} />
+        <div className={styles.editorContent}>
+          <EditorContent editor={editor} />
+          {editor && <TableBubbleMenu editor={editor} />}
         </div>
       </div>
 
-      <div className={styles.footer}>
-        <p className={styles.hint}>
-          💡 提示：在新标签页中打开相同 URL 以测试多人协作
-        </p>
+      <div className={styles.sidebar}>
+        <CollaboratorList
+          collaborators={collaborators}
+          currentUserId={awarenessManager?.awareness.clientID.toString()}
+        />
       </div>
     </div>
   )

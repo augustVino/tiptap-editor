@@ -58,6 +58,13 @@ export const KEYBOARD_SHORTCUTS = {
     displayKey: 'Ctrl+Shift+Z (Mac: ⌘+Shift+Z)'
   },
 
+  // 链接
+  link: {
+    keys: ['Mod-k', 'Mod-K'],
+    description: '插入链接',
+    displayKey: 'Ctrl+K (Mac: ⌘+K)'
+  },
+
   // 其他
   selectAll: {
     keys: ['Mod-a'],
@@ -101,4 +108,73 @@ export function getAllShortcuts(): Array<{
       display: getShortcutDisplay(shortcutKey)
     }
   })
+}
+
+/**
+ * Custom Keyboard Shortcuts Extension
+ *
+ * Adds Ctrl+K (Cmd+K on Mac) for link insertion with validation
+ */
+import { Extension } from '@tiptap/core'
+import type { Editor } from '@tiptap/core'
+import { isValidUrl } from '../utils/storage'
+
+export const CustomKeyboardShortcuts = Extension.create({
+  name: 'customKeyboardShortcuts',
+
+  addKeyboardShortcuts() {
+    return {
+      // Ctrl+K / Cmd+K: Insert or edit link
+      'Mod-k': () => {
+        return handleLinkShortcut(this.editor)
+      },
+      'Mod-K': () => {
+        return handleLinkShortcut(this.editor)
+      },
+    }
+  },
+})
+
+/**
+ * Handle Ctrl+K / Cmd+K link shortcut
+ *
+ * @param editor - TipTap editor instance
+ * @returns True if command was handled
+ */
+function handleLinkShortcut(editor: Editor): boolean {
+  const { from, to } = editor.state.selection
+
+  // Check if text is selected
+  if (from === to) {
+    alert('请先选择要添加链接的文本')
+    return true // Command handled (prevent default browser behavior)
+  }
+
+  // Check if already a link (allow editing/removing)
+  const isLink = editor.isActive('link')
+
+  if (isLink) {
+    // Remove existing link
+    const shouldRemove = window.confirm('已有链接。是否移除？')
+    if (shouldRemove) {
+      editor.chain().focus().unsetLink().run()
+    }
+    return true
+  }
+
+  // Prompt for URL
+  const url = window.prompt('请输入链接 URL:')
+
+  if (url) {
+    // Validate URL format
+    if (!isValidUrl(url)) {
+      alert('请输入有效的 URL（需包含协议，如 https://）')
+      return true
+    }
+
+    // Set link
+    editor.chain().focus().setLink({ href: url }).run()
+  }
+
+  return true // Command handled
 }

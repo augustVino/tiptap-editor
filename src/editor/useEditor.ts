@@ -11,6 +11,12 @@ import { Paragraph } from '@tiptap/extension-paragraph'
 import { Text } from '@tiptap/extension-text'
 import { History } from '@tiptap/extension-history'
 import { Placeholder } from '@tiptap/extension-placeholder'
+import { Blockquote } from '@tiptap/extension-blockquote'
+import { Code } from '@tiptap/extension-code'
+import { Highlight } from '@tiptap/extension-highlight'
+import { Link } from '@tiptap/extension-link'
+import { Superscript } from '@tiptap/extension-superscript'
+import { Subscript } from '@tiptap/extension-subscript'
 import type { UseEditorOptions, CollaborationConfig } from './types'
 import { Bold, Italic, Underline, Strike, Heading, TextAlign } from '../extensions/formatting'
 import { OrderedList, BulletList, ListItem, CodeBlock } from '../extensions/blocks'
@@ -19,6 +25,7 @@ import { createCollaborationExtension, createCollaborationCursorExtension } from
 import { getPerformanceMonitor } from '../utils/performance'
 import { createLogger } from '../utils/logger'
 import { CSS_CLASSES, EDITOR } from '../config/constants'
+import { CustomKeyboardShortcuts } from './keyboardShortcuts'
 
 const logger = createLogger('useEditor')
 
@@ -37,6 +44,7 @@ export type { CollaborationConfig }
  * - Ctrl/Cmd+Alt+1/2/3: 标题 1/2/3
  * - Ctrl/Cmd+Z: 撤销
  * - Ctrl/Cmd+Shift+Z: 重做
+ * - Ctrl/Cmd+K: 插入链接
  *
  * @param options - 编辑器选项
  * @returns TipTap 编辑器实例
@@ -74,8 +82,25 @@ export function useEditor(options: UseEditorOptions) {
       Strike,
       Heading,
       TextAlign,
+      Code,  // Inline code
+      Highlight.configure({
+        multicolor: false,  // Single color highlight for simplicity
+      }),
+      Link.configure({
+        openOnClick: false,  // Prevent accidental navigation during editing
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',  // Security best practice
+        },
+      }),
+      Superscript,
+      Subscript,
+
+      // 自定义键盘快捷键（Ctrl+K for links）
+      CustomKeyboardShortcuts,
 
       // 块级扩展
+      Blockquote,  // Blockquote block
       OrderedList,
       BulletList,
       ListItem,

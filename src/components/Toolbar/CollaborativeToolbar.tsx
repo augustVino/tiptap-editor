@@ -4,10 +4,13 @@
  * @module components/Toolbar/CollaborativeToolbar
  */
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import type { Editor } from '@tiptap/react'
 import { ToolbarButton } from './ToolbarButton'
 import { ToolbarDivider } from './ToolbarDivider'
+import { ToolbarDropdown } from './ToolbarDropdown'
+import { ThemeToggle } from './ThemeToggle'
+import * as Icons from '../icons/EditorIcons'
 import styles from './Toolbar.module.less'
 
 export interface CollaborativeToolbarProps {
@@ -17,6 +20,27 @@ export interface CollaborativeToolbarProps {
 
 export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.ReactElement | null {
   const { editor } = props
+  const [, forceUpdate] = useState({})
+
+  // 监听编辑器状态更新，强制组件重新渲染
+  useEffect(() => {
+    if (!editor) {
+      return
+    }
+
+    const handleUpdate = (): void => {
+      forceUpdate({})
+    }
+
+    // 监听选区变化和事务更新
+    editor.on('selectionUpdate', handleUpdate)
+    editor.on('transaction', handleUpdate)
+
+    return () => {
+      editor.off('selectionUpdate', handleUpdate)
+      editor.off('transaction', handleUpdate)
+    }
+  }, [editor])
 
   if (!editor) {
     return null
@@ -24,97 +48,92 @@ export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.Re
 
   return (
     <div className={styles.toolbar}>
-      {/* 格式化工具 */}
+      {/* 左侧spacer用于居中 */}
+      <div style={{ flex: 1 }} />
+
+      {/* 历史操作 */}
       <ToolbarButton
-        icon={<strong>B</strong>}
-        tooltip="加粗 (Ctrl+B)"
-        isActive={editor.isActive('bold')}
-        onClick={() => editor.chain().focus().toggleBold().run()}
+        icon={<Icons.UndoIcon />}
+        tooltip="撤销 (Ctrl+Z)"
+        disabled={!editor.can().undo()}
+        onClick={() => editor.chain().focus().undo().run()}
       />
       <ToolbarButton
-        icon={<em>I</em>}
-        tooltip="斜体 (Ctrl+I)"
-        isActive={editor.isActive('italic')}
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-      />
-      <ToolbarButton
-        icon={<u>U</u>}
-        tooltip="下划线 (Ctrl+U)"
-        isActive={editor.isActive('underline')}
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-      />
-      <ToolbarButton
-        icon={<s>S</s>}
-        tooltip="删除线 (Ctrl+Shift+X)"
-        isActive={editor.isActive('strike')}
-        onClick={() => editor.chain().focus().toggleStrike().run()}
+        icon={<Icons.RedoIcon />}
+        tooltip="重做 (Ctrl+Y)"
+        disabled={!editor.can().redo()}
+        onClick={() => editor.chain().focus().redo().run()}
       />
 
       <ToolbarDivider />
 
-      {/* 标题 */}
-      <ToolbarButton
-        icon={<span>H1</span>}
-        tooltip="标题 1 (Ctrl+Alt+1)"
-        isActive={editor.isActive('heading', { level: 1 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+      {/* 标题下拉菜单 */}
+      <ToolbarDropdown
+        icon={<Icons.HeadingIcon />}
+        tooltip="Format text as heading"
+        isActive={editor.isActive('heading')}
+        items={[
+          {
+            label: 'Heading 1',
+            value: 'h1',
+            onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+            isActive: editor.isActive('heading', { level: 1 })
+          },
+          {
+            label: 'Heading 2',
+            value: 'h2',
+            onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
+            isActive: editor.isActive('heading', { level: 2 })
+          },
+          {
+            label: 'Heading 3',
+            value: 'h3',
+            onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
+            isActive: editor.isActive('heading', { level: 3 })
+          },
+          {
+            label: 'Heading 4',
+            value: 'h4',
+            onClick: () => editor.chain().focus().toggleHeading({ level: 4 }).run(),
+            isActive: editor.isActive('heading', { level: 4 })
+          }
+        ]}
       />
-      <ToolbarButton
-        icon={<span>H2</span>}
-        tooltip="标题 2 (Ctrl+Alt+2)"
-        isActive={editor.isActive('heading', { level: 2 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-      />
-      <ToolbarButton
-        icon={<span>H3</span>}
-        tooltip="标题 3 (Ctrl+Alt+3)"
-        isActive={editor.isActive('heading', { level: 3 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+
+      {/* 列表下拉菜单 */}
+      <ToolbarDropdown
+        icon={<Icons.ListIcon />}
+        tooltip="List options"
+        isActive={editor.isActive('bulletList') || editor.isActive('orderedList')}
+        items={[
+          {
+            label: 'Bullet list',
+            value: 'bulletList',
+            onClick: () => editor.chain().focus().toggleBulletList().run(),
+            isActive: editor.isActive('bulletList')
+          },
+          {
+            label: 'Numbered list',
+            value: 'orderedList',
+            onClick: () => editor.chain().focus().toggleOrderedList().run(),
+            isActive: editor.isActive('orderedList')
+          }
+        ]}
       />
 
       <ToolbarDivider />
 
-      {/* 文本对齐 */}
+      {/* 引用 */}
       <ToolbarButton
-        icon={<span>≡</span>}
-        tooltip="左对齐 (Ctrl+Shift+L)"
-        isActive={editor.isActive({ textAlign: 'left' })}
-        onClick={() => editor.chain().focus().setTextAlign('left').run()}
+        icon={<Icons.BlockquoteIcon />}
+        tooltip="引用 (Ctrl+Shift+B)"
+        isActive={editor.isActive('blockquote')}
+        onClick={() => editor.chain().focus().toggleBlockquote().run()}
       />
-      <ToolbarButton
-        icon={<span>≣</span>}
-        tooltip="居中 (Ctrl+Shift+E)"
-        isActive={editor.isActive({ textAlign: 'center' })}
-        onClick={() => editor.chain().focus().setTextAlign('center').run()}
-      />
-      <ToolbarButton
-        icon={<span>≡</span>}
-        tooltip="右对齐 (Ctrl+Shift+R)"
-        isActive={editor.isActive({ textAlign: 'right' })}
-        onClick={() => editor.chain().focus().setTextAlign('right').run()}
-      />
-
-      <ToolbarDivider />
-
-      {/* 列表 */}
-      <ToolbarButton
-        icon={<span>1.</span>}
-        tooltip="有序列表 (Ctrl+Shift+7)"
-        isActive={editor.isActive('orderedList')}
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-      />
-      <ToolbarButton
-        icon={<span>•</span>}
-        tooltip="无序列表 (Ctrl+Shift+8)"
-        isActive={editor.isActive('bulletList')}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-      />
-
-      <ToolbarDivider />
 
       {/* 代码块 */}
       <ToolbarButton
-        icon={<span>{'<>'}</span>}
+        icon={<Icons.CodeBlockIcon />}
         tooltip="代码块 (Ctrl+Alt+C)"
         isActive={editor.isActive('codeBlock')}
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
@@ -122,16 +141,100 @@ export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.Re
 
       <ToolbarDivider />
 
-      {/* 插入表格按钮 */}
+      {/* 格式化工具 */}
       <ToolbarButton
-        icon={
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
-          </svg>
-        }
-        tooltip="插入表格 (3x3)"
-        onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        icon={<Icons.BoldIcon />}
+        tooltip="加粗 (Ctrl+B)"
+        isActive={editor.isActive('bold')}
+        onClick={() => editor.chain().focus().toggleBold().run()}
       />
+      <ToolbarButton
+        icon={<Icons.ItalicIcon />}
+        tooltip="斜体 (Ctrl+I)"
+        isActive={editor.isActive('italic')}
+        onClick={() => editor.chain().focus().toggleItalic().run()}
+      />
+      <ToolbarButton
+        icon={<Icons.StrikeIcon />}
+        tooltip="删除线 (Ctrl+Shift+X)"
+        isActive={editor.isActive('strike')}
+        onClick={() => editor.chain().focus().toggleStrike().run()}
+      />
+      <ToolbarButton
+        icon={<Icons.CodeIcon />}
+        tooltip="行内代码"
+        isActive={editor.isActive('code')}
+        onClick={() => editor.chain().focus().toggleCode().run()}
+      />
+      <ToolbarButton
+        icon={<Icons.UnderlineIcon />}
+        tooltip="下划线 (Ctrl+U)"
+        isActive={editor.isActive('underline')}
+        onClick={() => editor.chain().focus().toggleUnderline().run()}
+      />
+      <ToolbarButton
+        icon={<Icons.HighlightIcon />}
+        tooltip="高亮"
+        isActive={editor.isActive('highlight')}
+        onClick={() => editor.chain().focus().toggleHighlight().run()}
+      />
+      <ToolbarButton
+        icon={<Icons.LinkIcon />}
+        tooltip="链接"
+        isActive={editor.isActive('link')}
+        onClick={() => {
+          const url = window.prompt('输入链接URL:')
+          if (url) {
+            editor.chain().focus().setLink({ href: url }).run()
+          }
+        }}
+      />
+      <ToolbarButton
+        icon={<Icons.SuperscriptIcon />}
+        tooltip="上标"
+        isActive={editor.isActive('superscript')}
+        onClick={() => editor.chain().focus().toggleSuperscript().run()}
+      />
+      <ToolbarButton
+        icon={<Icons.SubscriptIcon />}
+        tooltip="下标"
+        isActive={editor.isActive('subscript')}
+        onClick={() => editor.chain().focus().toggleSubscript().run()}
+      />
+
+      <ToolbarDivider />
+
+      {/* 文本对齐 */}
+      <ToolbarButton
+        icon={<Icons.AlignLeftIcon />}
+        tooltip="左对齐"
+        isActive={editor.isActive({ textAlign: 'left' })}
+        onClick={() => editor.chain().focus().setTextAlign('left').run()}
+      />
+      <ToolbarButton
+        icon={<Icons.AlignCenterIcon />}
+        tooltip="居中"
+        isActive={editor.isActive({ textAlign: 'center' })}
+        onClick={() => editor.chain().focus().setTextAlign('center').run()}
+      />
+      <ToolbarButton
+        icon={<Icons.AlignRightIcon />}
+        tooltip="右对齐"
+        isActive={editor.isActive({ textAlign: 'right' })}
+        onClick={() => editor.chain().focus().setTextAlign('right').run()}
+      />
+      <ToolbarButton
+        icon={<Icons.AlignJustifyIcon />}
+        tooltip="两端对齐"
+        isActive={editor.isActive({ textAlign: 'justify' })}
+        onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+      />
+
+      {/* 右侧spacer用于居中 */}
+      <div style={{ flex: 1 }} />
+
+      {/* 主题切换 */}
+      <ThemeToggle />
     </div>
   )
 }

@@ -1,97 +1,138 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background: #f9fafb;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0;
-}
-
-.main {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
+  min-height: 100vh;
+  background: var(--theme-background, rgb(14, 14, 17));
 }
 
 .editorArea {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
-  margin: 16px;
-  margin-right: 0;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  width: 100%;
+  background: var(--theme-background, rgb(14, 14, 17));
+  overflow: auto;
 }
 
 .editorContent {
   flex: 1;
-  overflow-y: auto;
-  padding: 24px;
+  width: 648px;
+  max-width: 648px;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
 
-  :global(.tiptap-editor) {
-    outline: none;
-    min-height: 100%;
+  :global {
+    .ProseMirror {
+      flex: 1;
+      outline: none;
+      width: 100%;
+      padding: 48px 48px 282px 48px;
+      color: var(--theme-text, rgb(245, 245, 245));
+      caret-color: var(--theme-primary, rgb(122, 82, 255));
+      font-size: 16px;
+      line-height: 1.6;
 
-    p {
-      margin: 0 0 1em 0;
-    }
+      /* Text selection color */
+      ::selection {
+        background-color: rgba(122, 82, 255, 0.2);
+        color: inherit;
+      }
 
-    h1, h2, h3 {
-      margin: 1.5em 0 0.5em 0;
-      line-height: 1.3;
-    }
+      p {
+        margin: 0 0 1em 0;
+      }
 
-    h1 {
-      font-size: 2em;
-      font-weight: 700;
-    }
+      h1, h2, h3 {
+        margin: 1.5em 0 0.5em 0;
+        line-height: 1.3;
+        color: var(--theme-text, rgb(245, 245, 245));
+        font-weight: 600;
+      }
 
-    h2 {
-      font-size: 1.5em;
-      font-weight: 600;
-    }
+      h1 {
+        font-size: 2em;
+      }
 
-    h3 {
-      font-size: 1.25em;
-      font-weight: 600;
+      h2 {
+        font-size: 1.5em;
+      }
+
+      h3 {
+        font-size: 1.25em;
+      }
+
+      code {
+        background: var(--theme-codeBackground, rgba(238, 238, 246, 0.11));
+        color: var(--theme-text, rgb(245, 245, 245));
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 0.9em;
+      }
+
+      mark {
+        background: var(--theme-highlight, #6b6524);
+        color: var(--theme-text, rgb(245, 245, 245));
+        padding: 2px 4px;
+        border-radius: 2px;
+      }
+
+      blockquote {
+        border-left: 3px solid var(--theme-border, rgba(238, 238, 246, 0.11));
+        padding-left: 1em;
+        margin-left: 0;
+        color: var(--theme-textSecondary, rgba(236, 238, 253, 0.75));
+        font-style: italic;
+      }
+
+      a {
+        color: var(--theme-primary, rgb(122, 82, 255));
+        text-decoration: underline;
+
+        &:hover {
+          color: var(--theme-primaryHover, rgb(98, 41, 255));
+        }
+      }
+
+      ul, ol {
+        padding-left: 1.5em;
+        margin: 1em 0;
+      }
+
+      li {
+        margin: 0.5em 0;
+      }
+
+      pre {
+        background: var(--theme-codeBackground, rgba(238, 238, 246, 0.11));
+        border-radius: 8px;
+        padding: 16px;
+        overflow-x: auto;
+        margin: 1em 0;
+
+        code {
+          background: none;
+          padding: 0;
+        }
+      }
     }
   }
 }
 
 .sidebar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
   width: 280px;
-  background: #ffffff;
-  margin: 16px 16px 16px 0;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-height: 400px;
+  background: var(--theme-backgroundSecondary, rgb(25, 25, 26));
+  border: 1px solid var(--theme-border, rgba(238, 238, 246, 0.11));
+  border-radius: 12px;
   overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.12),
+              0 4px 12px 0 rgba(0, 0, 0, 0.08),
+              0 2px 4px 0 rgba(0, 0, 0, 0.06);
 }
 
-.footer {
-  padding: 12px 24px;
-  background: #ffffff;
-  border-top: 1px solid #e5e7eb;
-  text-align: center;
-}
-
-.hint {
-  margin: 0;
-  font-size: 14px;
-  color: #6b7280;
-}
