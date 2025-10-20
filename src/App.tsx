@@ -3,22 +3,12 @@
  */
 
 import React, { useState } from 'react'
-import { EditorProvider } from './editor/EditorProvider'
-import { EditorContent } from './components/Editor/EditorContent'
-import { Toolbar } from './components/Toolbar/Toolbar'
 import { CollaborativeEditor } from './examples/CollaborativeEditor'
+import { ErrorBoundary } from './components/common'
 import styles from './App.module.less'
 
-type EditorMode = 'single' | 'collaborative'
-
 function App(): React.ReactElement {
-  const [mode, setMode] = useState<EditorMode>('collaborative')  // 默认为协作模式
-  const [content, setContent] = useState<string>('')
   const [userName, setUserName] = useState<string>(`User-${Math.floor(Math.random() * 1000)}`)
-
-  const handleChange = (html: string) => {
-    setContent(html)
-  }
 
   return (
     <div className={styles.app}>
@@ -27,35 +17,10 @@ function App(): React.ReactElement {
           <h1>多人协作文档编辑器</h1>
           <p>基于 TipTap 3.x + Yjs 构建的现代化富文本编辑器</p>
         </div>
-        <div className={styles.modeSwitch}>
-          <button
-            className={mode === 'single' ? styles.active : ''}
-            onClick={() => setMode('single')}
-          >
-            单机编辑器
-          </button>
-          <button
-            className={mode === 'collaborative' ? styles.active : ''}
-            onClick={() => setMode('collaborative')}
-          >
-            协作编辑器
-          </button>
-        </div>
       </header>
 
       <main className={styles.main}>
-        {mode === 'single' ? (
-          <div className={styles.editorContainer}>
-            <EditorProvider
-              documentId="demo-doc-001"
-              placeholder="开始输入..."
-              onChange={handleChange}
-            >
-              <Toolbar />
-              <EditorContent />
-            </EditorProvider>
-          </div>
-        ) : (
+        <ErrorBoundary>
           <div className={styles.collaborativeContainer}>
             <div className={styles.userInput}>
               <label>
@@ -77,15 +42,7 @@ function App(): React.ReactElement {
               userName={userName}
             />
           </div>
-        )}
-
-        {/* 调试信息 */}
-        {process.env.NODE_ENV === 'development' && mode === 'single' && (
-          <details className={styles.debug}>
-            <summary>调试信息 (开发环境)</summary>
-            <pre>{JSON.stringify({ contentLength: content.length }, null, 2)}</pre>
-          </details>
-        )}
+        </ErrorBoundary>
       </main>
     </div>
   )

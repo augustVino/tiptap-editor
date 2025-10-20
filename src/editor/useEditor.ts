@@ -5,17 +5,25 @@
 
 import React from 'react'
 import { useEditor as useTiptapEditor } from '@tiptap/react'
+import type { AnyExtension } from '@tiptap/core'
 import { Document } from '@tiptap/extension-document'
 import { Paragraph } from '@tiptap/extension-paragraph'
 import { Text } from '@tiptap/extension-text'
 import { History } from '@tiptap/extension-history'
 import { Placeholder } from '@tiptap/extension-placeholder'
-import type { UseEditorOptions } from './types'
+import type { UseEditorOptions, CollaborationConfig } from './types'
 import { Bold, Italic, Underline, Strike, Heading, TextAlign } from '../extensions/formatting'
 import { OrderedList, BulletList, ListItem, CodeBlock } from '../extensions/blocks'
 import { Table, TableRow, TableCell, TableHeader } from '../extensions/tables'
 import { createCollaborationExtension, createCollaborationCursorExtension } from '../extensions/collaboration'
 import { getPerformanceMonitor } from '../utils/performance'
+import { createLogger } from '../utils/logger'
+import { CSS_CLASSES, EDITOR } from '../config/constants'
+
+const logger = createLogger('useEditor')
+
+// Re-export CollaborationConfig for other modules
+export type { CollaborationConfig }
 
 /**
  * 自定义 useEditor Hook
@@ -48,7 +56,7 @@ export function useEditor(options: UseEditorOptions) {
 
   // 构建扩展列表（使用 useMemo 确保稳定性）
   const extensions = React.useMemo(() => {
-    const exts = [
+    const exts: AnyExtension[] = [
       // 基础扩展
       Document,
       Paragraph,
@@ -56,7 +64,7 @@ export function useEditor(options: UseEditorOptions) {
 
       // 占位符
       Placeholder.configure({
-        placeholder
+        placeholder: placeholder || EDITOR.DEFAULT_PLACEHOLDER
       }),
 
       // 格式化扩展
@@ -77,7 +85,7 @@ export function useEditor(options: UseEditorOptions) {
       Table.configure({
         resizable: true,  // 允许调整列宽
         HTMLAttributes: {
-          class: 'tiptap-table'
+          class: CSS_CLASSES.TABLE
         }
       }),
       TableRow,
@@ -87,7 +95,7 @@ export function useEditor(options: UseEditorOptions) {
 
     // 如果启用协作，添加协作扩展
     if (collaboration && collaboration.ydoc && collaboration.wsProvider) {
-      console.log('[useEditor] Adding collaboration extensions', {
+      logger.debug('Adding collaboration extensions', {
         hasYdoc: !!collaboration.ydoc,
         hasWsProvider: !!collaboration.wsProvider,
         user: collaboration.user
@@ -104,7 +112,7 @@ export function useEditor(options: UseEditorOptions) {
         })
       )
     } else {
-      console.log('[useEditor] Not adding collaboration extensions', {
+      logger.debug('Not adding collaboration extensions', {
         hasCollaboration: !!collaboration,
         hasYdoc: !!collaboration?.ydoc,
         hasWsProvider: !!collaboration?.wsProvider
@@ -112,7 +120,7 @@ export function useEditor(options: UseEditorOptions) {
       // 非协作模式才启用历史记录（协作模式下由 Yjs 处理历史）
       exts.push(
         History.configure({
-          depth: 50
+          depth: EDITOR.HISTORY_DEPTH
         })
       )
     }
@@ -129,7 +137,7 @@ export function useEditor(options: UseEditorOptions) {
     // 编辑器创建时的回调
     onCreate({ editor: createdEditor }) {
       monitor.log('editor-initialization')
-      console.log('[useEditor] Editor created', {
+      logger.info('Editor created', {
         documentId,
         hasCollaboration: !!collaboration,
         extensionCount: extensions.length
@@ -142,7 +150,7 @@ export function useEditor(options: UseEditorOptions) {
 
     // 内容更新回调
     onUpdate({ editor: updatedEditor }) {
-      console.log('[useEditor] Editor updated')
+      logger.debug('Editor updated')
 
       if (onChange) {
         const html = updatedEditor.getHTML()
@@ -153,7 +161,7 @@ export function useEditor(options: UseEditorOptions) {
     // 编辑器启用时开始监控初始化时间
     editorProps: {
       attributes: {
-        class: 'tiptap-editor',
+        class: CSS_CLASSES.EDITOR,
         'data-document-id': documentId
       }
     }

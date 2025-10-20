@@ -3,7 +3,7 @@
  * @module components/Toolbar
  */
 
-export { Toolbar } from './Toolbar'
+export { CollaborativeToolbar } from './CollaborativeToolbar'
+export type { CollaborativeToolbarProps } from './CollaborativeToolbar'
 export { ToolbarButton } from './ToolbarButton'
 export { ToolbarDivider } from './ToolbarDivider'
-export { FormattingTools } from './FormattingTools'

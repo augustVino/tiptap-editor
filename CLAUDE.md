@@ -4,7 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-这是一个基于 TipTap 的富文本编辑器项目，重点实现了高度自定义的 Mention（@提及）功能。项目使用 React + TypeScript + Vite，采用 pnpm 作为包管理工具。
+这是一个基于 TipTap 3.x + Yjs 构建的多人协作文档编辑器。项目使用 React + TypeScript + Vite，采用 pnpm 作为包管理工具。
+
+### 核心功能
+
+- **实时协作编辑**: 基于 Yjs 的多人实时协作
+- **丰富的编辑功能**: 格式化、列表、表格、代码块等
+- **用户感知**: 显示在线协作者和光标位置
+- **离线持久化**: 支持 IndexedDB 本地存储
 
 ## 开发命令
 
@@ -29,55 +36,69 @@ pnpm type-check
 
 ### 主要组件结构
 
-1. **RichInput** (`src/components/RichInput/`)
-   - 项目的核心可复用组件，封装了完整的 TipTap 编辑器功能
-   - 通过 `useTiptapEditor` hook 管理编辑器实例和扩展
-   - 支持三种内容输出类型：`html`、`text`、`json`
-   - 提供 ref API 用于外部控制编辑器（focus、clear、setContent 等）
+1. **编辑器 Provider 架构** (`src/editor/`)
+   - **CollaborativeEditorProvider**: 协作编辑器的统一上下文提供者
+     - 整合 YjsProvider（Yjs 文档同步）和编辑器实例
+     - 管理 Awareness（用户在线状态）和协作者列表
+     - 提供 `useCollaborativeEditor` 和 `useCollaborativeEditorInstance` hooks
+     - 自动处理连接状态和同步状态
+   - **useEditor**: 编辑器初始化 hook，支持协作扩展
 
-2. **自定义 TipTap 核心** (`src/core/`)
-   - `suggestion/`: 修改自 `@tiptap/suggestion`，用于实现自定义建议逻辑
-   - `extension-mention/`: 修改自 `@tiptap/extension-mention`，实现自定义 mention 功能
-   - 这些是从官方包复制并修改的版本，用于实现特定业务需求
+2. **协作基础设施** (`src/collaboration/`)
+   - **YjsProvider**: Yjs 文档和 WebSocket 提供者
+   - **AwarenessManager**: 管理用户在线状态和光标位置
+   - 支持 IndexedDB 离线持久化
 
-3. **Mention 扩展系统** (`src/components/RichInput/extensions/mentions/`)
-   - `MentionNodeView/`: 自定义 mention 节点的渲染
-   - `configure/`: mention 交互逻辑配置
-     - `withMentionInteraction.tsx`: 高阶组件，为列表组件添加交互功能（键盘导航、选择等）
-     - `CompositionStateManager.ts`: 管理中文输入法状态
-     - `List/index.tsx`: mention 列表的默认实现
-   - 支持自定义列表组件和渲染组件
+3. **配置系统** (`src/config/`)
+   - **env.ts**: 类型安全的环境变量管理
+   - **constants.ts**: 集中管理所有常量配置（WebSocket、编辑器、CSS类名等）
 
-4. **AtMention 组件** (`src/components/AtMention/`)
-   - 业务层的 mention 实现示例
-   - `AtList`: 显示客户和职位的 mention 列表
-   - `AtMentionTag`: mention 标签的渲染
-   - `Highlight`: 高亮搜索关键词的工具组件
+4. **工具函数** (`src/utils/`)
+   - **logger.ts**: 统一的日志系统，支持模块化日志和环境控制
+   - **performance.ts**: 性能监控工具
+   - **colorPalette.ts**: 用户颜色生成工具
+
+5. **通用组件** (`src/components/common/`)
+   - **ErrorBoundary**: React 错误边界组件
+   - **NetworkStatus**: 网络状态指示器
+   - **Button/Tooltip**: 基础 UI 组件
+
+6. **UI 组件**
+   - **Toolbar** (`src/components/Toolbar/`): 编辑器工具栏
+   - **Sidebar** (`src/components/Sidebar/`): 协作者列表
+   - **Table** (`src/components/Table/`): 表格浮动菜单
 
 ### 关键设计模式
 
-1. **扩展配置系统**
-   - 通过 `MentionExtensionOption` 配置 mention 功能
-   - 每个 mention 类型需要提供：
-     - `name`: 唯一标识符
-     - `suggestion`: 建议配置（触发字符、items 获取函数等）
-     - `listComponent`: 列表渲染组件
-     - `renderComponent`: mention 标签渲染组件
-     - `addSourceAttr`: 是否添加源数据属性
+1. **统一的 Provider 架构**
+   - **CollaborativeEditorProvider** 统一管理：
+     - YjsProvider（文档同步）
+     - 编辑器实例
+     - Awareness（用户状态）
+     - 协作者列表
+     - 连接状态
 
-2. **响应式扩展更新**
-   - `useTiptapEditor` 监听 mentions 配置变化，动态更新编辑器扩展
-   - 使用 `useLatest` hook 确保回调始终引用最新值
+2. **环境变量管理**
+   - 通过 `.env.development` 和 `.env.production` 配置不同环境
+   - `src/config/env.ts` 提供类型安全的访问接口
+   - 支持 WebSocket URL、日志开关、重连配置等
 
-3. **内容类型处理**
-   - 根据 `submitType` 参数决定内容的获取和比较方式
-   - 支持受控和非受控模式
+3. **统一日志系统**
+   - 模块化日志：每个模块创建独立 logger
+   - 环境控制：开发环境显示所有日志，生产环境仅显示警告和错误
+   - 彩色输出：DEBUG、INFO、WARN、ERROR 不同颜色
+
+4. **类型安全**
+   - 启用 TypeScript strict 模式
+   - 完整的类型定义，消除所有 `any` 类型
+   - 100% 类型检查通过
 
 ## TypeScript 配置
 
-- 当前 TypeScript 配置较为宽松（`strict: false`）
-- 允许隐式 any、未使用变量等
-- 如需添加类型检查，可逐步收紧 `tsconfig.json` 配置
+- ✅ 已启用 TypeScript **strict 模式**
+- ✅ 启用 `noUnusedLocals`、`noUnusedParameters`、`noImplicitReturns`
+- ✅ **0 个类型错误**，100% 类型安全
+- ✅ 完整的类型定义，无 `any` 类型
 
 ## 样式系统
 
@@ -88,18 +109,27 @@ pnpm type-check
 
 ## 注意事项
 
-1. **自定义核心模块**
-   - `src/core/` 中的代码是从 TipTap 官方包修改而来
-   - 更新时需谨慎，避免与官方版本混淆
+1. **环境变量**
+   - 开发环境使用 `.env.development`
+   - 生产环境使用 `.env.production`
+   - 通过 `src/config/env.ts` 访问配置，避免直接使用 `import.meta.env`
 
-2. **Mention 交互**
-   - `withMentionInteraction` HOC 为列表组件提供完整的键盘和鼠标交互
-   - 处理中文输入法时使用 `CompositionStateManager` 避免冲突
+2. **日志系统**
+   - 使用 `createLogger(moduleName)` 创建模块专属 logger
+   - 开发环境显示所有日志，生产环境仅显示警告和错误
+   - **避免使用 `console.log`**，统一使用 logger
 
-3. **异步数据加载**
-   - `suggestion.items` 函数支持异步返回
-   - 示例见 `App.tsx` 中的 `getAtListAjax` 实现
+3. **错误处理**
+   - 所有用户交互区域已用 `ErrorBoundary` 包裹
+   - 错误会被优雅地捕获并显示友好的 UI
+   - 错误日志会自动记录到 logger
 
-4. **性能优化**
-   - mention 配置使用 `useMemo` 缓存
-   - 大量数据时考虑虚拟滚动（当前未实现）
+4. **类型安全**
+   - 项目已启用 TypeScript strict 模式
+   - 所有核心模块均有完整类型定义
+   - **避免使用 `any` 类型**，使用 `unknown` 或具体类型
+
+5. **性能优化**
+   - 使用 `useMemo` 和 `useCallback` 缓存计算和回调
+   - logger 在生产环境自动关闭 debug 日志
+   - 性能监控工具会标记慢操作（>100ms）
