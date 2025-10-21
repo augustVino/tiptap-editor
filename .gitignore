@@ -50,4 +50,5 @@ coverage
 # Claude Code & Speckit
 .claude
 .specify
+specs
 CLAUDE.md
