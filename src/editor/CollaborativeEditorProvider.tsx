@@ -4,34 +4,36 @@
  * @module editor/CollaborativeEditorProvider
  */
 
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
-import type { Editor as TiptapEditor } from '@tiptap/core'
-import type { Doc } from 'yjs'
-import type { WebsocketProvider } from 'y-websocket'
-import type { Awareness } from 'y-protocols/awareness'
-import { YjsProvider, useYjsContext } from '../collaboration/YjsProvider'
-import { AwarenessManager } from '../collaboration/AwarenessManager'
-import { useEditor, type CollaborationConfig } from './useEditor'
-import { getConsistentColor } from '../utils/colorPalette'
-import { ConnectionStatus } from '../types'
-import { createLogger } from '../utils/logger'
-import type { AwarenessUser } from '../collaboration/types'
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import type { Editor as TiptapEditor } from '@tiptap/core';
+import type { Doc } from 'yjs';
+import type { WebsocketProvider } from 'y-websocket';
+import type { Awareness } from 'y-protocols/awareness';
+import { YjsProvider, useYjsContext } from '../collaboration/YjsProvider';
+import { AwarenessManager } from '../collaboration/AwarenessManager';
+import { useEditor, type CollaborationConfig } from './useEditor';
+import { getConsistentColor } from '../utils/colorPalette';
+import { ConnectionStatus } from '../types';
+import { createLogger } from '../utils/logger';
+import type { AwarenessUser } from '../collaboration/types';
 import type {
   CollaborativeEditorProviderProps,
   CollaborativeEditorContextValue
-} from './CollaborativeEditorProvider.types'
+} from './CollaborativeEditorProvider.types';
 
-const logger = createLogger('CollaborativeEditorProvider')
+const logger = createLogger('CollaborativeEditorProvider');
 
 /**
  * 协作编辑器上下文
  */
-const CollaborativeEditorContext = createContext<CollaborativeEditorContextValue | null>(null)
+const CollaborativeEditorContext = createContext<CollaborativeEditorContextValue | null>(null);
 
 /**
  * 内部编辑器组件（在 YjsProvider 内部使用）
  */
-function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps, 'webSocket' | 'indexedDB'>) {
+function CollaborativeEditorContent(
+  props: Omit<CollaborativeEditorProviderProps, 'webSocket' | 'indexedDB'>
+) {
   const {
     documentId,
     user,
@@ -43,78 +45,86 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
     onChange,
     onConnectionStatusChange,
     onCollaboratorsChange
-  } = props
+  } = props;
 
-  const { ydoc, wsProvider, awareness, isConnected, isSynced } = useYjsContext()
-  const [collaborators, setCollaborators] = useState<AwarenessUser[]>([])
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(ConnectionStatus.Offline)
+  const { ydoc, wsProvider, awareness, isConnected, isSynced } = useYjsContext();
+  const [collaborators, setCollaborators] = useState<AwarenessUser[]>([]);
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>(
+    ConnectionStatus.Offline
+  );
 
   // 生成用户颜色（如果未提供）
-  const userColor = useMemo(() => user.color || getConsistentColor(user.name), [user.color, user.name])
-  const userId = useMemo(() => user.id || `user-${Date.now()}`, [user.id])
+  const userColor = useMemo(
+    () => user.color || getConsistentColor(user.name),
+    [user.color, user.name]
+  );
+  const userId = useMemo(() => user.id || `user-${Date.now()}`, [user.id]);
 
   // 当前用户信息
-  const currentUser = useMemo(() => ({
-    id: userId,
-    name: user.name,
-    color: userColor
-  }), [userId, user.name, userColor])
+  const currentUser = useMemo(
+    () => ({
+      id: userId,
+      name: user.name,
+      color: userColor
+    }),
+    [userId, user.name, userColor]
+  );
 
   // 创建 AwarenessManager
   const awarenessManager = useMemo(() => {
-    if (!wsProvider || !awareness) return null
+    if (!wsProvider || !awareness) return null;
 
-    const manager = new AwarenessManager(awareness, currentUser)
+    const manager = new AwarenessManager(awareness, currentUser);
 
     // 监听用户变化
     const updateCollaborators = () => {
-      const users = manager.getOnlineUsers()
-      setCollaborators(users)
-      onCollaboratorsChange?.(users)
-    }
+      const users = manager.getOnlineUsers();
+      setCollaborators(users);
+      onCollaboratorsChange?.(users);
+    };
 
-    manager.on('userJoined', updateCollaborators)
-    manager.on('userLeft', updateCollaborators)
+    manager.on('userJoined', updateCollaborators);
+    manager.on('userLeft', updateCollaborators);
 
     // 初始化协作者列表
-    updateCollaborators()
+    updateCollaborators();
 
-    return manager
-  }, [awareness, wsProvider, currentUser, onCollaboratorsChange])
+    return manager;
+  }, [awareness, wsProvider, currentUser, onCollaboratorsChange]);
 
   // 更新连接状态
   useEffect(() => {
-    let status: ConnectionStatus
+    let status: ConnectionStatus;
     if (isConnected && isSynced) {
-      status = ConnectionStatus.Connected
+      status = ConnectionStatus.Connected;
     } else if (isConnected && !isSynced) {
-      status = ConnectionStatus.Connecting
+      status = ConnectionStatus.Connecting;
     } else {
-      status = ConnectionStatus.Offline
+      status = ConnectionStatus.Offline;
     }
 
-    setConnectionStatus(status)
-    onConnectionStatusChange?.(status)
-  }, [isConnected, isSynced, onConnectionStatusChange])
+    setConnectionStatus(status);
+    onConnectionStatusChange?.(status);
+  }, [isConnected, isSynced, onConnectionStatusChange]);
 
   // 监听 Yjs 文档更新（调试）
   useEffect(() => {
     const handleUpdate = (update: Uint8Array, origin: unknown) => {
       logger.debug('Yjs document updated', {
         updateSize: update.length,
-        origin: (origin as {constructor?: {name?: string}})?.constructor?.name || 'unknown'
-      })
-    }
+        origin: (origin as { constructor?: { name?: string } })?.constructor?.name || 'unknown'
+      });
+    };
 
-    ydoc.on('update', handleUpdate)
+    ydoc.on('update', handleUpdate);
     return () => {
-      ydoc.off('update', handleUpdate)
-    }
-  }, [ydoc])
+      ydoc.off('update', handleUpdate);
+    };
+  }, [ydoc]);
 
   // 协作配置
   const collaborationConfig = useMemo(() => {
-    if (!awarenessManager || !wsProvider) return undefined
+    if (!awarenessManager || !wsProvider) return undefined;
 
     return {
       ydoc,
@@ -124,15 +134,15 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
         name: currentUser.name,
         color: currentUser.color
       }
-    }
-  }, [awarenessManager, wsProvider, ydoc, currentUser])
+    };
+  }, [awarenessManager, wsProvider, ydoc, currentUser]);
 
   // 清理 AwarenessManager
   useEffect(() => {
     return () => {
-      awarenessManager?.destroy()
-    }
-  }, [awarenessManager])
+      awarenessManager?.destroy();
+    };
+  }, [awarenessManager]);
 
   // 如果协作配置未准备好，不渲染编辑器（避免 hooks 顺序问题）
   if (!collaborationConfig) {
@@ -140,13 +150,13 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
       <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
         正在连接协作服务器...
       </div>
-    )
+    );
   }
 
   // 协作配置准备好后才渲染编辑器
   // TypeScript 类型断言：此时这些值一定不为 null（因为 collaborationConfig 存在）
   if (!wsProvider || !awareness || !awarenessManager) {
-    throw new Error('CollaborativeEditorProvider: required providers are not initialized')
+    throw new Error('CollaborativeEditorProvider: required providers are not initialized');
   }
 
   return (
@@ -170,30 +180,30 @@ function CollaborativeEditorContent(props: Omit<CollaborativeEditorProviderProps
     >
       {children}
     </EditorWrapper>
-  )
+  );
 }
 
 /**
  * EditorWrapper Props 接口
  */
 interface EditorWrapperProps {
-  documentId: string
-  initialContent?: string | Record<string, unknown>
-  placeholder?: string
-  editable?: boolean
-  collaborationConfig: CollaborationConfig
-  onEditorReady?: (editor: TiptapEditor) => void
-  onChange?: (content: string) => void
-  ydoc: Doc
-  wsProvider: WebsocketProvider
-  awareness: Awareness
-  awarenessManager: AwarenessManager
-  collaborators: AwarenessUser[]
-  currentUser: { id: string; name: string; color: string }
-  connectionStatus: ConnectionStatus
-  isConnected: boolean
-  isSynced: boolean
-  children: React.ReactNode
+  documentId: string;
+  initialContent?: string | Record<string, unknown>;
+  placeholder?: string;
+  editable?: boolean;
+  collaborationConfig: CollaborationConfig;
+  onEditorReady?: (editor: TiptapEditor) => void;
+  onChange?: (content: string) => void;
+  ydoc: Doc;
+  wsProvider: WebsocketProvider;
+  awareness: Awareness;
+  awarenessManager: AwarenessManager;
+  collaborators: AwarenessUser[];
+  currentUser: { id: string; name: string; color: string };
+  connectionStatus: ConnectionStatus;
+  isConnected: boolean;
+  isSynced: boolean;
+  children: React.ReactNode;
 }
 
 /**
@@ -218,7 +228,7 @@ function EditorWrapper(props: EditorWrapperProps) {
     isConnected,
     isSynced,
     children
-  } = props
+  } = props;
 
   // 创建编辑器（此时 collaborationConfig 一定存在）
   const editor = useEditor({
@@ -229,80 +239,78 @@ function EditorWrapper(props: EditorWrapperProps) {
     collaboration: collaborationConfig,
     onEditorReady,
     onChange
-  })
+  });
 
   // Context value
-  const contextValue: CollaborativeEditorContextValue = useMemo(() => ({
-    editor,
-    ydoc,
-    wsProvider,
-    awareness,
-    awarenessManager,
-    collaborators,
-    currentUser,
-    connectionStatus,
-    isConnected,
-    isSynced
-  }), [
-    editor,
-    ydoc,
-    wsProvider,
-    awareness,
-    awarenessManager,
-    collaborators,
-    currentUser,
-    connectionStatus,
-    isConnected,
-    isSynced
-  ])
+  const contextValue: CollaborativeEditorContextValue = useMemo(
+    () => ({
+      editor,
+      ydoc,
+      wsProvider,
+      awareness,
+      awarenessManager,
+      collaborators,
+      currentUser,
+      connectionStatus,
+      isConnected,
+      isSynced
+    }),
+    [
+      editor,
+      ydoc,
+      wsProvider,
+      awareness,
+      awarenessManager,
+      collaborators,
+      currentUser,
+      connectionStatus,
+      isConnected,
+      isSynced
+    ]
+  );
 
   return (
     <CollaborativeEditorContext.Provider value={contextValue}>
       {children}
     </CollaborativeEditorContext.Provider>
-  )
+  );
 }
 
 /**
  * CollaborativeEditorProvider 组件
  * 统一管理协作编辑器的所有上下文（Yjs + Editor + Awareness）
  */
-export function CollaborativeEditorProvider(props: CollaborativeEditorProviderProps): React.ReactElement {
-  const {
-    documentId,
-    webSocket,
-    indexedDB,
-    children,
-    ...editorProps
-  } = props
+export function CollaborativeEditorProvider(
+  props: CollaborativeEditorProviderProps
+): React.ReactElement {
+  const { documentId, webSocket, indexedDB, children, ...editorProps } = props;
 
   // 默认 WebSocket 配置
-  const defaultWebSocket = useMemo(() => ({
-    url: webSocket?.url || 'ws://localhost:1234',
-    roomName: webSocket?.roomName || documentId,
-    enableAwareness: webSocket?.enableAwareness !== false
-  }), [webSocket, documentId])
+  const defaultWebSocket = useMemo(
+    () => ({
+      url: webSocket?.url || 'ws://localhost:1234',
+      roomName: webSocket?.roomName || documentId,
+      enableAwareness: webSocket?.enableAwareness !== false
+    }),
+    [webSocket, documentId]
+  );
 
   // 默认 IndexedDB 配置
-  const defaultIndexedDB = useMemo(() => ({
-    dbName: indexedDB?.dbName || `yjs-${documentId}`,
-    enabled: indexedDB?.enabled !== false
-  }), [indexedDB, documentId])
+  const defaultIndexedDB = useMemo(
+    () => ({
+      dbName: indexedDB?.dbName || `yjs-${documentId}`,
+      enabled: indexedDB?.enabled !== false
+    }),
+    [indexedDB, documentId]
+  );
 
   return (
-    <YjsProvider
-      documentId={documentId}
-      webSocket={defaultWebSocket}
-      indexedDB={defaultIndexedDB}
-    >
-      <CollaborativeEditorContent
-        documentId={documentId}
-        {...editorProps}
-      >
+    <YjsProvider documentId={documentId} webSocket={defaultWebSocket} indexedDB={defaultIndexedDB}>
+      <CollaborativeEditorContent documentId={documentId} {...editorProps}>
         {children}
       </CollaborativeEditorContent>
     </YjsProvider>
-  )
+  );
 }
 
 /**
@@ -313,13 +321,13 @@ export function CollaborativeEditorProvider(props: CollaborativeEditorProviderPr
  * @throws 如果在 CollaborativeEditorProvider 外部使用
  */
 export function useCollaborativeEditor(): CollaborativeEditorContextValue {
-  const context = useContext(CollaborativeEditorContext)
+  const context = useContext(CollaborativeEditorContext);
 
   if (!context) {
-    throw new Error('useCollaborativeEditor must be used within CollaborativeEditorProvider')
+    throw new Error('useCollaborativeEditor must be used within CollaborativeEditorProvider');
   }
 
-  return context
+  return context;
 }
 
 /**
@@ -330,11 +338,11 @@ export function useCollaborativeEditor(): CollaborativeEditorContextValue {
  * @throws 如果编辑器未初始化
  */
 export function useCollaborativeEditorInstance(): TiptapEditor {
-  const { editor } = useCollaborativeEditor()
+  const { editor } = useCollaborativeEditor();
 
   if (!editor) {
-    throw new Error('Collaborative editor is not initialized')
+    throw new Error('Collaborative editor is not initialized');
   }
 
-  return editor
+  return editor;
 }

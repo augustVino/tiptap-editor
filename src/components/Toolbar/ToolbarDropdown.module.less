@@ -66,7 +66,9 @@
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  min-width: 160px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
   background: var(--theme-backgroundSecondary, rgb(25, 25, 26));
   border: 1px solid var(--theme-border, rgba(238, 238, 246, 0.11));
   border-radius: 8px;
@@ -90,9 +92,11 @@
 }
 
 .menuItem {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
-  padding: 8px 12px;
+  padding: 8px;
   border: none;
   border-radius: 6px;
   background: transparent;
@@ -117,4 +121,26 @@
       color: var(--theme-primary, rgb(122, 82, 255));
     }
   }
+}
+
+.menuItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+
+.menuItemLabel {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

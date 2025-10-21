@@ -4,46 +4,46 @@
  * @module components/Toolbar/CollaborativeToolbar
  */
 
-import React, { useState, useEffect } from 'react'
-import type { Editor } from '@tiptap/react'
-import { ToolbarButton } from './ToolbarButton'
-import { ToolbarDivider } from './ToolbarDivider'
-import { ToolbarDropdown } from './ToolbarDropdown'
-import { ThemeToggle } from './ThemeToggle'
-import * as Icons from '../icons/EditorIcons'
-import styles from './Toolbar.module.less'
+import React, { useState, useEffect } from 'react';
+import type { Editor } from '@tiptap/react';
+import { ToolbarButton } from './ToolbarButton';
+import { ToolbarDivider } from './ToolbarDivider';
+import { ToolbarDropdown } from './ToolbarDropdown';
+import { ThemeToggle } from './ThemeToggle';
+import * as Icons from '../icons/EditorIcons';
+import styles from './Toolbar.module.less';
 
 export interface CollaborativeToolbarProps {
   /** TipTap 编辑器实例 */
-  editor: Editor | null
+  editor: Editor | null;
 }
 
 export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.ReactElement | null {
-  const { editor } = props
-  const [, forceUpdate] = useState({})
+  const { editor } = props;
+  const [, forceUpdate] = useState({});
 
   // 监听编辑器状态更新，强制组件重新渲染
   useEffect(() => {
     if (!editor) {
-      return
+      return;
     }
 
     const handleUpdate = (): void => {
-      forceUpdate({})
-    }
+      forceUpdate({});
+    };
 
     // 监听选区变化和事务更新
-    editor.on('selectionUpdate', handleUpdate)
-    editor.on('transaction', handleUpdate)
+    editor.on('selectionUpdate', handleUpdate);
+    editor.on('transaction', handleUpdate);
 
     return () => {
-      editor.off('selectionUpdate', handleUpdate)
-      editor.off('transaction', handleUpdate)
-    }
-  }, [editor])
+      editor.off('selectionUpdate', handleUpdate);
+      editor.off('transaction', handleUpdate);
+    };
+  }, [editor]);
 
   if (!editor) {
-    return null
+    return null;
   }
 
   return (
@@ -76,24 +76,28 @@ export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.Re
           {
             label: 'Heading 1',
             value: 'h1',
+            icon: <Icons.H1Icon size={16} />,
             onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
             isActive: editor.isActive('heading', { level: 1 })
           },
           {
             label: 'Heading 2',
             value: 'h2',
+            icon: <Icons.H2Icon size={16} />,
             onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(),
             isActive: editor.isActive('heading', { level: 2 })
           },
           {
             label: 'Heading 3',
             value: 'h3',
+            icon: <Icons.H3Icon size={16} />,
             onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(),
             isActive: editor.isActive('heading', { level: 3 })
           },
           {
             label: 'Heading 4',
             value: 'h4',
+            icon: <Icons.H4Icon size={16} />,
             onClick: () => editor.chain().focus().toggleHeading({ level: 4 }).run(),
             isActive: editor.isActive('heading', { level: 4 })
           }
@@ -104,19 +108,32 @@ export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.Re
       <ToolbarDropdown
         icon={<Icons.ListIcon />}
         tooltip="List options"
-        isActive={editor.isActive('bulletList') || editor.isActive('orderedList')}
+        isActive={
+          editor.isActive('bulletList') ||
+          editor.isActive('orderedList') ||
+          editor.isActive('taskList')
+        }
         items={[
           {
-            label: 'Bullet list',
+            label: 'Bullet List',
             value: 'bulletList',
+            icon: <Icons.BulletListIcon size={16} />,
             onClick: () => editor.chain().focus().toggleBulletList().run(),
             isActive: editor.isActive('bulletList')
           },
           {
-            label: 'Numbered list',
+            label: 'Ordered List',
             value: 'orderedList',
+            icon: <Icons.OrderedListIcon size={16} />,
             onClick: () => editor.chain().focus().toggleOrderedList().run(),
             isActive: editor.isActive('orderedList')
+          },
+          {
+            label: 'Task List',
+            value: 'taskList',
+            icon: <Icons.TaskListIcon size={16} />,
+            onClick: () => editor.chain().focus().toggleTaskList().run(),
+            isActive: editor.isActive('taskList')
           }
         ]}
       />
@@ -183,9 +200,9 @@ export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.Re
         tooltip="链接"
         isActive={editor.isActive('link')}
         onClick={() => {
-          const url = window.prompt('输入链接URL:')
+          const url = window.prompt('输入链接URL:');
           if (url) {
-            editor.chain().focus().setLink({ href: url }).run()
+            editor.chain().focus().setLink({ href: url }).run();
           }
         }}
       />
@@ -236,5 +253,5 @@ export function CollaborativeToolbar(props: CollaborativeToolbarProps): React.Re
       {/* 主题切换 */}
       <ThemeToggle />
     </div>
-  )
+  );
 }

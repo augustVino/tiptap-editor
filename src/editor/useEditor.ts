@@ -3,34 +3,44 @@
  * @module editor/useEditor
  */
 
-import React from 'react'
-import { useEditor as useTiptapEditor } from '@tiptap/react'
-import type { AnyExtension } from '@tiptap/core'
-import { Document } from '@tiptap/extension-document'
-import { Paragraph } from '@tiptap/extension-paragraph'
-import { Text } from '@tiptap/extension-text'
-import { History } from '@tiptap/extension-history'
-import { Placeholder } from '@tiptap/extension-placeholder'
-import { Blockquote } from '@tiptap/extension-blockquote'
-import { Code } from '@tiptap/extension-code'
-import { Highlight } from '@tiptap/extension-highlight'
-import { Link } from '@tiptap/extension-link'
-import { Superscript } from '@tiptap/extension-superscript'
-import { Subscript } from '@tiptap/extension-subscript'
-import type { UseEditorOptions, CollaborationConfig } from './types'
-import { Bold, Italic, Underline, Strike, Heading, TextAlign } from '../extensions/formatting'
-import { OrderedList, BulletList, ListItem, CodeBlock } from '../extensions/blocks'
-import { Table, TableRow, TableCell, TableHeader } from '../extensions/tables'
-import { createCollaborationExtension, createCollaborationCursorExtension } from '../extensions/collaboration'
-import { getPerformanceMonitor } from '../utils/performance'
-import { createLogger } from '../utils/logger'
-import { CSS_CLASSES, EDITOR } from '../config/constants'
-import { CustomKeyboardShortcuts } from './keyboardShortcuts'
+import React from 'react';
+import { useEditor as useTiptapEditor } from '@tiptap/react';
+import type { AnyExtension } from '@tiptap/core';
+import { Document } from '@tiptap/extension-document';
+import { Paragraph } from '@tiptap/extension-paragraph';
+import { Text } from '@tiptap/extension-text';
+import { History } from '@tiptap/extension-history';
+import { Placeholder } from '@tiptap/extension-placeholder';
+import { Blockquote } from '@tiptap/extension-blockquote';
+import { Code } from '@tiptap/extension-code';
+import { Highlight } from '@tiptap/extension-highlight';
+import { Link } from '@tiptap/extension-link';
+import { Superscript } from '@tiptap/extension-superscript';
+import { Subscript } from '@tiptap/extension-subscript';
+import type { UseEditorOptions, CollaborationConfig } from './types';
+import { Bold, Italic, Underline, Strike, Heading, TextAlign } from '../extensions/formatting';
+import {
+  OrderedList,
+  BulletList,
+  ListItem,
+  TaskList,
+  TaskItem,
+  CodeBlock
+} from '../extensions/blocks';
+import { Table, TableRow, TableCell, TableHeader } from '../extensions/tables';
+import {
+  createCollaborationExtension,
+  createCollaborationCursorExtension
+} from '../extensions/collaboration';
+import { getPerformanceMonitor } from '../utils/performance';
+import { createLogger } from '../utils/logger';
+import { CSS_CLASSES, EDITOR } from '../config/constants';
+import { CustomKeyboardShortcuts } from './keyboardShortcuts';
 
-const logger = createLogger('useEditor')
+const logger = createLogger('useEditor');
 
 // Re-export CollaborationConfig for other modules
-export type { CollaborationConfig }
+export type { CollaborationConfig };
 
 /**
  * 自定义 useEditor Hook
@@ -58,9 +68,9 @@ export function useEditor(options: UseEditorOptions) {
     onEditorReady,
     onChange,
     collaboration
-  } = options
+  } = options;
 
-  const monitor = getPerformanceMonitor()
+  const monitor = getPerformanceMonitor();
 
   // 构建扩展列表（使用 useMemo 确保稳定性）
   const extensions = React.useMemo(() => {
@@ -82,16 +92,16 @@ export function useEditor(options: UseEditorOptions) {
       Strike,
       Heading,
       TextAlign,
-      Code,  // Inline code
+      Code, // Inline code
       Highlight.configure({
-        multicolor: false,  // Single color highlight for simplicity
+        multicolor: false // Single color highlight for simplicity
       }),
       Link.configure({
-        openOnClick: false,  // Prevent accidental navigation during editing
+        openOnClick: false, // Prevent accidental navigation during editing
         HTMLAttributes: {
           target: '_blank',
-          rel: 'noopener noreferrer',  // Security best practice
-        },
+          rel: 'noopener noreferrer' // Security best practice
+        }
       }),
       Superscript,
       Subscript,
@@ -100,15 +110,17 @@ export function useEditor(options: UseEditorOptions) {
       CustomKeyboardShortcuts,
 
       // 块级扩展
-      Blockquote,  // Blockquote block
+      Blockquote, // Blockquote block
       OrderedList,
       BulletList,
       ListItem,
+      TaskList,
+      TaskItem,
       CodeBlock,
 
       // 表格扩展
       Table.configure({
-        resizable: true,  // 允许调整列宽
+        resizable: true, // 允许调整列宽
         HTMLAttributes: {
           class: CSS_CLASSES.TABLE
         }
@@ -116,7 +128,7 @@ export function useEditor(options: UseEditorOptions) {
       TableRow,
       TableHeader,
       TableCell
-    ]
+    ];
 
     // 如果启用协作，添加协作扩展
     if (collaboration && collaboration.ydoc && collaboration.wsProvider) {
@@ -124,7 +136,7 @@ export function useEditor(options: UseEditorOptions) {
         hasYdoc: !!collaboration.ydoc,
         hasWsProvider: !!collaboration.wsProvider,
         user: collaboration.user
-      })
+      });
 
       exts.push(
         createCollaborationExtension({
@@ -135,67 +147,70 @@ export function useEditor(options: UseEditorOptions) {
           provider: collaboration.wsProvider,
           user: collaboration.user
         })
-      )
+      );
     } else {
       logger.debug('Not adding collaboration extensions', {
         hasCollaboration: !!collaboration,
         hasYdoc: !!collaboration?.ydoc,
         hasWsProvider: !!collaboration?.wsProvider
-      })
+      });
       // 非协作模式才启用历史记录（协作模式下由 Yjs 处理历史）
       exts.push(
         History.configure({
           depth: EDITOR.HISTORY_DEPTH
         })
-      )
+      );
     }
 
-    return exts
-  }, [collaboration, placeholder])
+    return exts;
+  }, [collaboration, placeholder]);
 
-  const editor = useTiptapEditor({
-    extensions,
+  const editor = useTiptapEditor(
+    {
+      extensions,
 
-    content: initialContent || '',
-    editable,
+      content: initialContent || '',
+      editable,
 
-    // 编辑器创建时的回调
-    onCreate({ editor: createdEditor }) {
-      monitor.log('editor-initialization')
-      logger.info('Editor created', {
-        documentId,
-        hasCollaboration: !!collaboration,
-        extensionCount: extensions.length
-      })
+      // 编辑器创建时的回调
+      onCreate({ editor: createdEditor }) {
+        monitor.log('editor-initialization');
+        logger.info('Editor created', {
+          documentId,
+          hasCollaboration: !!collaboration,
+          extensionCount: extensions.length
+        });
 
-      if (onEditorReady) {
-        onEditorReady(createdEditor)
+        if (onEditorReady) {
+          onEditorReady(createdEditor);
+        }
+      },
+
+      // 内容更新回调
+      onUpdate({ editor: updatedEditor }) {
+        logger.debug('Editor updated');
+
+        if (onChange) {
+          const html = updatedEditor.getHTML();
+          onChange(html);
+        }
+      },
+
+      // 编辑器启用时开始监控初始化时间
+      editorProps: {
+        attributes: {
+          class: CSS_CLASSES.EDITOR,
+          'data-document-id': documentId
+        }
       }
     },
-
-    // 内容更新回调
-    onUpdate({ editor: updatedEditor }) {
-      logger.debug('Editor updated')
-
-      if (onChange) {
-        const html = updatedEditor.getHTML()
-        onChange(html)
-      }
-    },
-
-    // 编辑器启用时开始监控初始化时间
-    editorProps: {
-      attributes: {
-        class: CSS_CLASSES.EDITOR,
-        'data-document-id': documentId
-      }
-    }
-  }, [extensions, documentId, initialContent, editable]) // 确保在关键属性变化时重新创建编辑器
+    [extensions, documentId, initialContent, editable]
+  ); // 确保在关键属性变化时重新创建编辑器
 
   // 监控编辑器初始化性能
   if (editor && !editor.isDestroyed) {
-    monitor.start('editor-initialization')
+    monitor.start('editor-initialization');
   }
 
-  return editor
+  return editor;
 }
