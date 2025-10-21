@@ -40,7 +40,7 @@
       }
 
       p {
-        margin: 0 0 1em 0;
+        margin: 0;
       }
 
       h1,
@@ -118,6 +118,38 @@
           background: none;
           padding: 0;
         }
+      }
+
+      ul[data-type='taskList'] {
+        list-style: none;
+        margin-left: 0;
+        padding: 0;
+
+        li {
+          align-items: center;
+          display: flex;
+
+          > label {
+            flex: 0 0 auto;
+            margin-right: 0.5rem;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+          }
+          > div {
+            flex: 1 1 auto;
+          }
+        }
+        input[type='checkbox'] {
+          cursor: pointer;
+        }
+      }
+
+      button:checked,
+      input:checked,
+      select:checked,
+      textarea:checked {
+        accent-color: var(--theme-primary, rgb(122, 82, 255));
       }
     }
   }

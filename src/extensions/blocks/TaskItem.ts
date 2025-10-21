@@ -13,7 +13,7 @@ export const TaskItemExtension = TaskItem.configure({
   HTMLAttributes: {
     class: 'task-item'
   },
-  nested: true // 支持嵌套任务列表
+  nested: false // 支持嵌套任务列表
 });
 
 export default TaskItemExtension;
