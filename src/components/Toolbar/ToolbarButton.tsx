@@ -3,20 +3,20 @@
  * @module components/Toolbar/ToolbarButton
  */
 
-import React from 'react'
-import { Tooltip } from '../common/Tooltip'
+import React from 'react';
+import { Tooltip } from 'antd';
 
 export interface ToolbarButtonProps {
   /** 图标或文本 */
-  icon: React.ReactNode
+  icon: React.ReactNode;
   /** 提示文本 */
-  tooltip: string
+  tooltip: string;
   /** 是否激活 */
-  isActive?: boolean
+  isActive?: boolean;
   /** 是否禁用 */
-  disabled?: boolean
+  disabled?: boolean;
   /** 点击事件 */
-  onClick: () => void
+  onClick: () => void;
 }
 
 /**
@@ -24,7 +24,7 @@ export interface ToolbarButtonProps {
  * 带图标和提示的工具栏按钮
  */
 export function ToolbarButton(props: ToolbarButtonProps): React.ReactElement {
-  const { icon, tooltip, isActive = false, disabled = false, onClick } = props
+  const { icon, tooltip, isActive = false, disabled = false, onClick } = props;
 
   const className = [
     'toolbar-button',
@@ -32,10 +32,10 @@ export function ToolbarButton(props: ToolbarButtonProps): React.ReactElement {
     disabled && 'toolbar-button--disabled'
   ]
     .filter(Boolean)
-    .join(' ')
+    .join(' ');
 
   return (
-    <Tooltip content={tooltip}>
+    <Tooltip title={tooltip} placement="top" arrow mouseEnterDelay={0.3}>
       <button
         type="button"
         className={className}
@@ -46,5 +46,5 @@ export function ToolbarButton(props: ToolbarButtonProps): React.ReactElement {
         {icon}
       </button>
     </Tooltip>
-  )
+  );
 }

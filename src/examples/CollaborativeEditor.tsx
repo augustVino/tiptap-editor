@@ -4,36 +4,32 @@
  * @module examples/CollaborativeEditor
  */
 
-import React from 'react'
-import { EditorContent } from '@tiptap/react'
+import React from 'react';
+import { EditorContent } from '@tiptap/react';
 import {
   CollaborativeEditorProvider,
   useCollaborativeEditor
-} from '../editor/CollaborativeEditorProvider'
-import { CollaborativeToolbar } from '../components/Toolbar/CollaborativeToolbar'
-import { CollaboratorList } from '../components/Sidebar'
-import { TableBubbleMenu } from '../components/Table/TableBubbleMenu'
-import styles from './CollaborativeEditor.module.less'
-import '../components/Editor/CollaborationCursor.module.less'
+} from '../editor/CollaborativeEditorProvider';
+import { CollaborativeToolbar } from '../components/Toolbar/CollaborativeToolbar';
+import { CollaboratorList } from '../components/Sidebar';
+import { TableBubbleMenu } from '../components/Table/TableBubbleMenu';
+import styles from './CollaborativeEditor.module.less';
+import '../components/Editor/CollaborationCursor.module.less';
 
 export interface CollaborativeEditorProps {
   /** 文档 ID */
-  documentId: string
+  documentId: string;
   /** WebSocket 服务器 URL */
-  wsUrl?: string
+  wsUrl?: string;
   /** 用户名 */
-  userName?: string
+  userName?: string;
 }
 
 /**
  * 编辑器 UI 组件（在 CollaborativeEditorProvider 内部使用）
  */
 function EditorUI(): React.ReactElement {
-  const {
-    editor,
-    collaborators,
-    awarenessManager
-  } = useCollaborativeEditor()
+  const { editor, collaborators, awarenessManager } = useCollaborativeEditor();
 
   return (
     <div className={styles.container}>
@@ -52,14 +48,14 @@ function EditorUI(): React.ReactElement {
         />
       </div>
     </div>
-  )
+  );
 }
 
 /**
  * 协作编辑器组件
  */
 export function CollaborativeEditor(props: CollaborativeEditorProps): React.ReactElement {
-  const { documentId, wsUrl = 'ws://localhost:1234', userName = 'User' } = props
+  const { documentId, wsUrl = 'ws://localhost:1234', userName = 'User' } = props;
 
   return (
     <CollaborativeEditorProvider
@@ -78,5 +74,5 @@ export function CollaborativeEditor(props: CollaborativeEditorProps): React.Reac
     >
       <EditorUI />
     </CollaborativeEditorProvider>
-  )
+  );
 }

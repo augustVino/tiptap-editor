@@ -1,101 +1,73 @@
 /**
  * Toolbar Dropdown Component
  * 工具栏下拉菜单组件
+ *
+ * 基于 Ant Design Dropdown 的封装，提供更好的交互体验：
+ * - 智能定位和边界检测
+ * - 流畅的动画效果
+ * - 支持键盘导航
+ * - 无障碍访问支持
  */
 
-import React, { useState, useRef, useEffect } from 'react'
-import styles from './ToolbarDropdown.module.less'
+import React from 'react';
+import { Dropdown } from 'antd';
+import type { MenuProps } from 'antd';
+import { DownOutlined } from '@ant-design/icons';
+import styles from './ToolbarDropdown.module.less';
 
 export interface ToolbarDropdownItem {
-  label: string
-  value: string
-  onClick: () => void
-  isActive?: boolean
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
+  onClick: () => void;
+  isActive?: boolean;
 }
 
 export interface ToolbarDropdownProps {
-  icon: React.ReactNode
-  items: ToolbarDropdownItem[]
-  tooltip?: string
-  isActive?: boolean
+  icon: React.ReactNode;
+  items: ToolbarDropdownItem[];
+  tooltip?: string;
+  isActive?: boolean;
 }
 
+/**
+ * 工具栏下拉菜单组件
+ *
+ * 使用 Ant Design Dropdown 提供专业级的下拉交互
+ *
+ * @example
+ * ```tsx
+ * <ToolbarDropdown
+ *   icon={<HeadingIcon />}
+ *   tooltip="设置标题"
+ *   isActive={editor.isActive('heading')}
+ *   items={[
+ *     { label: 'H1', value: 'h1', onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run() }
+ *   ]}
+ * />
+ * ```
+ */
 export function ToolbarDropdown(props: ToolbarDropdownProps): React.ReactElement {
-  const { icon, items, tooltip, isActive = false } = props
-  const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const { icon, items, tooltip, isActive = false } = props;
 
-  // 点击外部关闭下拉菜单
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent): void {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-      }
-    }
+  // 将 ToolbarDropdownItem 转换为 antd MenuProps
+  const menuItems: MenuProps['items'] = items.map((item) => ({
+    key: item.value,
+    label: item.label,
+    icon: item.icon,
+    onClick: item.onClick,
+    // 使用自定义样式标记激活状态
+    className: item.isActive ? styles.menuItemActive : styles.menuItem
+  }));
 
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
-      }
-    }
-
-    return undefined
-  }, [isOpen])
-
-  const handleToggle = (): void => {
-    setIsOpen(!isOpen)
-  }
-
-  const handleItemClick = (item: ToolbarDropdownItem): void => {
-    item.onClick()
-    setIsOpen(false)
-  }
-
-  const buttonClass = [
-    styles.dropdownButton,
-    isActive && styles.active,
-    isOpen && styles.open
-  ]
-    .filter(Boolean)
-    .join(' ')
+  const buttonClass = [styles.dropdownButton, isActive && styles.active].filter(Boolean).join(' ');
 
   return (
-    <div className={styles.dropdown} ref={dropdownRef}>
-      <button
-        type="button"
-        className={buttonClass}
-        onClick={handleToggle}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-label={tooltip}
-      >
+    <Dropdown menu={{ items: menuItems }} trigger={['click']} placement="bottomLeft" arrow={false}>
+      <button type="button" className={buttonClass} aria-label={tooltip} aria-haspopup="menu">
         {icon}
-        <svg
-          className={styles.chevron}
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="currentColor"
-        >
-          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <DownOutlined className={styles.chevron} />
       </button>
-
-      {isOpen && (
-        <div className={styles.menu}>
-          {items.map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              className={`${styles.menuItem} ${item.isActive ? styles.menuItemActive : ''}`}
-              onClick={() => handleItemClick(item)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
+    </Dropdown>
+  );
 }
