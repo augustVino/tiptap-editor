@@ -1,4 +1,6 @@
-import type { Editor, Extensions, JSONContent, EditorOptions } from '@tiptap/core';
+import type { Editor, Extensions, EditorOptions } from '@tiptap/core';
+import type { JSONContent } from '@tiptap/core';
+export type { JSONContent };
 import type { Transaction } from '@tiptap/pm/state';
 
 // ─── ContentHelpers ───

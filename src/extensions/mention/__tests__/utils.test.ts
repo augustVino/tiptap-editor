@@ -9,7 +9,7 @@ describe('mapFieldNames', () => {
   });
 
   it('should map specified fields to label and id', () => {
-    const list = [{ name: 'Alice', uid: 'a1', extra: 'x' }];
+    const list = [{ name: 'Alice', uid: 'a1', extra: 'x' }] as unknown as MentionItem[];
     const result = mapFieldNames(list, { label: 'name', id: 'uid' });
     expect(result[0].label).toBe('Alice');
     expect(result[0].id).toBe('a1');

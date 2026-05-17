@@ -29,7 +29,7 @@ describe('createSubmitExtension', () => {
     const ext = createSubmitExtension({ onSubmit });
     const editor = createTestEditor([ext]);
 
-    editor.storage.mentionSuggestion = { active: true };
+    (editor.storage as Record<string, any>).mentionSuggestion = { active: true };
 
     editor.commands.keyboardShortcut('Enter');
     expect(onSubmit).not.toHaveBeenCalled();

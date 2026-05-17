@@ -5,17 +5,32 @@ import {
   Editor,
   createMentionExtension,
 } from '../../src';
-import { fetchUsers, fetchHashtags } from '../mocks';
+import { fetchCandidates, fetchPositions } from '../mocks';
 
-/**
- * 自定义 mention 标签渲染 + fieldNames 映射
- */
-// 自定义标签组件（带蓝色背景 + ID 显示）
-const CustomTag: React.FC<ReactNodeViewProps> = ({ node }) => {
+const CandidateTag: React.FC<ReactNodeViewProps> = ({ node }) => {
+  const { id, label, kind } = node.attrs;
   return (
-    <NodeViewWrapper as="span" style={tagStyle}>
-      @{node.attrs.label}
-      <span style={idStyle}>#{node.attrs.id}</span>
+    <NodeViewWrapper
+      as="span"
+      style={tagStyle}
+      onClick={() => console.log('[CustomTag] 候选人:', { id, kind })}
+    >
+      @{label}
+      <span style={kindStyle}>候选人</span>
+    </NodeViewWrapper>
+  );
+};
+
+const PositionTag: React.FC<ReactNodeViewProps> = ({ node }) => {
+  const { id, label, kind } = node.attrs;
+  return (
+    <NodeViewWrapper
+      as="span"
+      style={tagStyle}
+      onClick={() => console.log('[CustomTag] 职位:', { id, kind })}
+    >
+      @{label}
+      <span style={kindStyle}>职位</span>
     </NodeViewWrapper>
   );
 };
@@ -23,18 +38,22 @@ const CustomTag: React.FC<ReactNodeViewProps> = ({ node }) => {
 const tagStyle: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
-  gap: 2,
+  gap: 4,
   padding: '1px 6px',
-  borderRadius: 3,
-  backgroundColor: '#e6f4ff',
-  color: '#1677ff',
+  borderRadius: 4,
+  backgroundColor: 'rgba(79, 158, 237, 0.1)',
+  color: '#4f9eed',
+  fontWeight: 500,
   fontSize: 'inherit',
   lineHeight: 'inherit',
+  cursor: 'pointer',
 };
 
-const idStyle: React.CSSProperties = {
+const kindStyle: React.CSSProperties = {
   fontSize: 10,
   color: '#999',
+  borderLeft: '1px solid rgba(79,158,237,0.3)',
+  paddingLeft: 4,
   marginLeft: 2,
 };
 
@@ -44,15 +63,22 @@ const CustomTagDemo: React.FC = () => {
   const extensions = React.useMemo(
     () => [
       createMentionExtension({
-        name: 'customUser',
+        name: 'customCandidate',
         trigger: '@',
-        fetchItems: fetchUsers,
-        tagComponent: CustomTag,
+        fetchItems: fetchCandidates,
+        tagComponent: CandidateTag,
+        onSelect: (item) => {
+          console.log('[Custom] 选中候选人:', { id: item.id, kind: item.kind });
+        },
       }),
       createMentionExtension({
-        name: 'hashtag',
+        name: 'customPosition',
         trigger: '#',
-        fetchItems: fetchHashtags,
+        fetchItems: fetchPositions,
+        tagComponent: PositionTag,
+        onSelect: (item) => {
+          console.log('[Custom] 选中职位:', { id: item.id, kind: item.kind });
+        },
       }),
     ],
     [],
@@ -62,18 +88,19 @@ const CustomTagDemo: React.FC = () => {
     <section>
       <h3>6. 自定义标签渲染 + 多触发字符</h3>
       <p style={descStyle}>
-        自定义 tagComponent 渲染 mention 标签（显示 ID），同时支持 <code>@</code> 和 <code>#</code> 两种触发字符。
+        自定义 tagComponent 渲染 mention 标签（显示类型标识），同时支持 <code>@</code>（候选人）和 <code>#</code>（职位）两种触发字符。
+        点击标签在控制台打印 id 和 kind。
       </p>
 
       <Editor
-        placeholder="输入 @ 提及用户（自定义标签），# 添加标签..."
+        placeholder="输入 @ 选择候选人，# 选择职位..."
         extensions={extensions}
         value={content}
         onChange={(c) => setContent(c.html)}
       />
 
       <details style={{ marginTop: 12 }}>
-        <summary><strong>HTML 输出（mention 不含 source 数据）</strong></summary>
+        <summary><strong>HTML 输出</strong></summary>
         <pre style={preStyle}>{content}</pre>
       </details>
     </section>

@@ -54,7 +54,7 @@ describe('useEditor', () => {
     expect(result.current).toBe(mockEditorInstance);
     // Should have extensions configured
     expect(capturedOptions.extensions).toBeDefined();
-    expect(capturedOptions.extensions.length).toBeGreaterThan(0);
+    expect((capturedOptions.extensions as Extensions).length).toBeGreaterThan(0);
   });
 
   it('should include Placeholder extension when placeholder is provided', () => {

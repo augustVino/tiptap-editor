@@ -83,8 +83,10 @@ export function createMentionConfigure(option: MentionConfig) {
     },
 
     onExit: () => {
-      currentEditor.storage.mentionSuggestion = { active: false };
-      currentEditor = null;
+      if (currentEditor) {
+        currentEditor.storage.mentionSuggestion = { active: false };
+        currentEditor = null;
+      }
 
       popup?.[0]?.destroy();
       popup = null;
@@ -146,8 +148,18 @@ export function createMentionConfigure(option: MentionConfig) {
   };
 
   const extensionMethods = {
-    addAttributes() {
+    addAttributes(this: { parent?: () => Record<string, unknown> }) {
       return {
+        ...(this.parent?.() || {}),
+        kind: {
+          default: null,
+          parseHTML: (element: HTMLElement) =>
+            element.getAttribute('data-kind'),
+          renderHTML: (attributes: Record<string, unknown>) => {
+            if (!attributes.kind) return {};
+            return { 'data-kind': attributes.kind };
+          },
+        },
         ...(addSourceAttr
           ? {
               [MENTION_SOURCE_ATTR]: {

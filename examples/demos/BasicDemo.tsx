@@ -1,10 +1,7 @@
 import React from 'react';
 import { Editor } from '../../src';
-import { createSubmitExtension, createFileHandlerExtension } from '../../src/extensions';
+import { createSubmitExtension } from '../../src/extensions';
 
-/**
- * 最简场景：纯文本输入 + Enter 提交
- */
 const BasicDemo: React.FC = () => {
   const [messages, setMessages] = React.useState<string[]>([]);
 
@@ -12,7 +9,6 @@ const BasicDemo: React.FC = () => {
     () => [
       createSubmitExtension({
         onSubmit: () => {
-          // 实际使用中通过 onChange 持有最新内容，这里用 ref 获取
           setMessages((prev) => [...prev, `消息 ${prev.length + 1}: ${new Date().toLocaleTimeString()}`]);
         },
         shouldSubmit: (editor) => !editor.isEmpty,

@@ -15,7 +15,7 @@ export function withMentionInteraction<P extends MentionListProps>(
 ) {
   const HOC = forwardRef<
     { onKeyDown: (props: { event: KeyboardEvent }) => boolean },
-    MentionInteractionProps & Omit<P, keyof MentionListProps>
+    MentionInteractionProps
   >(function MentionInteraction(props, ref) {
     const { items, command, query, fieldNames, onSelect } = props;
     const [selectedIndex, setSelectedIndex] = useState(0);

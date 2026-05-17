@@ -2,9 +2,6 @@ import React from 'react';
 import { Editor } from '../../src';
 import { createFileHandlerExtension } from '../../src/extensions';
 
-/**
- * 文件处理：粘贴/拖放图片
- */
 const FileHandlerDemo: React.FC = () => {
   const [rejectedFiles, setRejectedFiles] = React.useState<string[]>([]);
   const [pastedFiles, setPastedFiles] = React.useState<string[]>([]);
@@ -34,7 +31,6 @@ const FileHandlerDemo: React.FC = () => {
       <h3>3. 文件处理 — 图片粘贴/拖放</h3>
       <p style={descStyle}>
         只允许图片文件 (image/*)。非图片文件会触发 onRejected 回调。
-        尝试粘贴或拖放文件到编辑器中。
       </p>
       <Editor placeholder="粘贴或拖放图片到此处..." extensions={extensions} />
 

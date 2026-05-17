@@ -10,8 +10,8 @@ const demos = [
   { id: 'basic', title: '基础用法' },
   { id: 'controlled', title: '受控模式' },
   { id: 'file', title: '文件处理' },
-  { id: 'mention', title: 'Mention 基础' },
-  { id: 'chat', title: '完整聊天场景' },
+  { id: 'mention', title: '候选人 + 职位' },
+  { id: 'chat', title: '聊天场景' },
   { id: 'custom', title: '自定义标签' },
 ] as const;
 
@@ -88,7 +88,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   tab: {
     padding: '6px 14px',
-    border: '1px solid #d9d9d9',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '#d9d9d9',
     borderRadius: 4,
     background: 'white',
     cursor: 'pointer',

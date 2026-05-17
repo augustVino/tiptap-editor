@@ -6,7 +6,7 @@ export interface SubmitConfig {
 }
 
 function isSuggestionActive(editor: Editor): boolean {
-  return editor.storage.mentionSuggestion?.active === true;
+  return (editor.storage as Record<string, any>).mentionSuggestion?.active === true;
 }
 
 export function createSubmitExtension(config: SubmitConfig) {
