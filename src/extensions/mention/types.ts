@@ -14,8 +14,15 @@ export interface MentionListProps {
   query?: string;
   onItemSelect: (index: number) => void;
   registerItemRef?: (index: number, ref: HTMLElement) => void;
+  /**
+   * @deprecated Forward-declared for future implementation. Do not depend on this yet.
+   */
   loading?: boolean;
+  /**
+   * @deprecated Forward-declared for future implementation. Do not depend on this yet.
+   */
   error?: string | null;
+  emptyText?: string;
 }
 
 export interface MentionConfig {
