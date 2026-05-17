@@ -8,6 +8,6 @@ export { createFileHandlerExtension, partitionFiles } from './extensions';
 export type { FileHandlerConfig } from './extensions';
 
 export { createMentionExtension, getMentionSourceFromJSON, getAllMentionSourcesFromJSON } from './extensions';
-export type { MentionConfig, MentionItem, MentionListProps, MentionTippyOptions } from './extensions';
+export type { MentionConfig, MentionItem, MentionListProps, MentionTippyOptions, MentionTagClickAttrs } from './extensions';
 export { withMentionInteraction } from './extensions';
 export { NodeViewWrapper } from '@tiptap/react';

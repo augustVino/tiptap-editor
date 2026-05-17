@@ -3,7 +3,7 @@ import type { SuggestionProps, SuggestionKeyDownProps, SuggestionOptions } from 
 import { ReactRenderer } from '@tiptap/react';
 import tippy, { type Instance as TippyInstance } from 'tippy.js';
 import type { MentionConfig, MentionItem } from './types';
-import { createSafeItems } from './utils';
+import { createSafeItems, serializeMentionSource } from './utils';
 import { withMentionInteraction } from './withMentionInteraction';
 import { List } from './List';
 import { getMentionNodeView } from './MentionNodeView';
@@ -133,16 +133,7 @@ export function createMentionConfigure(option: MentionConfig) {
           type: name,
           attrs: {
             ...mentionItem,
-            ...(addSourceAttr
-              ? {
-                  [MENTION_SOURCE_ATTR]:
-                    Array.isArray(addSourceAttr)
-                      ? Object.fromEntries(
-                          addSourceAttr.filter((k) => mentionItem.hasOwnProperty(k)).map((k) => [k, mentionItem[k]])
-                        )
-                      : mentionItem,
-                }
-              : {}),
+            ...serializeMentionSource(mentionItem, addSourceAttr),
           },
         },
         { type: 'text', text: ' ' },

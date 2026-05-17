@@ -51,4 +51,4 @@ export function getMentionSourceFromJSON(
 
 export { withMentionInteraction } from './withMentionInteraction';
 export { NodeViewWrapper } from '@tiptap/react';
-export type { MentionItem, MentionListProps, MentionConfig, MentionTippyOptions } from './types';
+export type { MentionItem, MentionListProps, MentionConfig, MentionTippyOptions, MentionTagClickAttrs } from './types';

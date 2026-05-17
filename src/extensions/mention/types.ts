@@ -33,6 +33,12 @@ export interface MentionTippyOptions {
   zIndex?: number;
 }
 
+export interface MentionTagClickAttrs {
+  id: string | null;
+  label: string;
+  kind: string | null;
+}
+
 export interface MentionConfig {
   name: string;
   trigger: string;
@@ -43,7 +49,7 @@ export interface MentionConfig {
   insertToEditor?: boolean;
   onSelect?: (item: MentionItem, context: { editor: Editor; query: string }) => void;
   addSourceAttr?: boolean | string[];
-  onTagClick?: (attrs: { id: string | null; label: string; kind: string | null }) => void;
+  onTagClick?: (attrs: MentionTagClickAttrs) => void;
   tippyOptions?: MentionTippyOptions;
   debounceMs?: number;
   emptyText?: string;

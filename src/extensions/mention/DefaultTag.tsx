@@ -1,10 +1,11 @@
 import React from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import type { ReactNodeViewProps } from '@tiptap/react';
+import type { MentionTagClickAttrs } from './types';
 import styles from './DefaultTag.module.less';
 
 interface MentionExtensionOptions {
-  onTagClick?: (attrs: { id: string | null; label: string; kind: string | null }) => void;
+  onTagClick?: (attrs: MentionTagClickAttrs) => void;
   suggestion?: { char?: string };
 }
 

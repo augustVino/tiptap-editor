@@ -13,6 +13,21 @@ export function mapFieldNames(
   }));
 }
 
+export function serializeMentionSource(
+  mentionItem: Record<string, any>,
+  addSourceAttr: boolean | string[],
+): Record<string, any> {
+  if (!addSourceAttr) return {};
+  if (addSourceAttr === true) return { mentionSource: mentionItem };
+  return {
+    mentionSource: Object.fromEntries(
+      addSourceAttr
+        .filter((k) => Object.prototype.hasOwnProperty.call(mentionItem, k))
+        .map((k) => [k, mentionItem[k]])
+    ),
+  };
+}
+
 export function createSafeItems(
   originalItems: (query: string) => Promise<MentionItem[]>,
   debounceMs?: number,
