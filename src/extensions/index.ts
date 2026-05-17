@@ -1,2 +1,2 @@
-// Extension factory functions will be implemented in subsequent plans
-export {};
+export { createSubmitExtension } from './submit';
+export type { SubmitConfig } from './submit';
