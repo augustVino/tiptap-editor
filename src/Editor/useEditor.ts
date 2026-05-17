@@ -9,6 +9,13 @@ import type { UseEditorOptions, ContentHelpers } from './types';
 import { createContentHelpers } from './types';
 import { useLatest } from './useLatest';
 
+function shallowEqualArrays<T>(a: T[] | undefined, b: T[] | undefined): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  return a.every((item, i) => item === b[i]);
+}
+
 export function useEditor(options: UseEditorOptions = {}) {
   const {
     placeholder,
@@ -34,17 +41,24 @@ export function useEditor(options: UseEditorOptions = {}) {
   const onCreateRef = useLatest(onCreate);
   const onDestroyRef = useLatest(onDestroy);
 
+  // ─── Extensions stability ───
+  const stableExtensionsRef = useRef<Extensions | undefined>(consumerExtensions);
+  if (!shallowEqualArrays(consumerExtensions, stableExtensionsRef.current)) {
+    stableExtensionsRef.current = consumerExtensions;
+  }
+  const stableExtensions = stableExtensionsRef.current;
+
   // ─── Extensions assembly ───
   const extensions: Extensions = useMemo(() => {
     const builtIn: Extensions = [Document, Paragraph, Text];
     if (placeholder) {
       builtIn.push(Placeholder.configure({ placeholder }));
     }
-    if (consumerExtensions) {
-      builtIn.push(...consumerExtensions);
+    if (stableExtensions) {
+      builtIn.push(...stableExtensions);
     }
     return builtIn;
-  }, [placeholder, consumerExtensions]);
+  }, [placeholder, stableExtensions]);
 
   // ─── Editor instance ───
   const editor = useTiptapEditor({
@@ -98,15 +112,15 @@ export function useEditor(options: UseEditorOptions = {}) {
   }, [editable, editor]);
 
   // ─── Extensions hot update ───
-  const prevExtensionsRef = useRef<Extensions | undefined>(consumerExtensions);
+  const prevExtensionsRef = useRef<Extensions | undefined>(stableExtensions);
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return;
-    if (prevExtensionsRef.current !== consumerExtensions) {
-      prevExtensionsRef.current = consumerExtensions;
+    if (prevExtensionsRef.current !== stableExtensions) {
+      prevExtensionsRef.current = stableExtensions;
       editor.setOptions({ extensions });
     }
-  }, [consumerExtensions, editor, extensions]);
+  }, [stableExtensions, editor, extensions]);
 
   return editor;
 }

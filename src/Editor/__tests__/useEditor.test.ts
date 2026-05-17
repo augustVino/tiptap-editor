@@ -19,6 +19,7 @@ function createMockEditor(): TiptapEditor {
   return {
     commands: mockCommands,
     setEditable: vi.fn(),
+    setOptions: vi.fn(),
     getHTML: vi.fn(() => '<p></p>'),
     getText: vi.fn(() => ''),
     getJSON: vi.fn(() => ({ type: 'doc', content: [] })),
@@ -140,5 +141,81 @@ describe('useEditor', () => {
     expect(callArg).toHaveProperty('text');
     expect(callArg).toHaveProperty('json');
     expect(callArg).toHaveProperty('isEmpty');
+  });
+
+  it('should not recreate extensions when same extension instances are passed in a new array', () => {
+    const ext1 = { name: 'a' } as never;
+    const ext2 = { name: 'b' } as never;
+
+    const { rerender } = renderHook(
+      ({ exts }) => useEditor({ extensions: exts }),
+      { initialProps: { exts: [ext1, ext2] } }
+    );
+
+    const firstExtensions = capturedOptions.extensions;
+
+    // Re-render with a new array containing the same extension instances
+    rerender({ exts: [ext1, ext2] });
+
+    const secondExtensions = capturedOptions.extensions;
+    expect(secondExtensions).toBe(firstExtensions);
+  });
+
+  it('should recreate extensions when extension instances actually change', () => {
+    const ext1 = { name: 'a' } as never;
+    const ext2 = { name: 'b' } as never;
+    const ext3 = { name: 'c' } as never;
+
+    const { rerender } = renderHook(
+      ({ exts }) => useEditor({ extensions: exts }),
+      { initialProps: { exts: [ext1, ext2] } }
+    );
+
+    const firstExtensions = capturedOptions.extensions;
+
+    // Re-render with a different extension
+    rerender({ exts: [ext1, ext3] });
+
+    const secondExtensions = capturedOptions.extensions;
+    expect(secondExtensions).not.toBe(firstExtensions);
+  });
+
+  it('should lazily evaluate json in content helpers', () => {
+    const onChange = vi.fn();
+    renderHook(() => useEditor({ onChange }));
+
+    const onUpdate = capturedOptions.onUpdate as (props: { editor: TiptapEditor }) => void;
+    act(() => {
+      onUpdate({ editor: mockEditorInstance! });
+    });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const helpers = onChange.mock.calls[0][0];
+
+    // getJSON should not have been called yet (lazy)
+    expect(mockEditorInstance!.getJSON).not.toHaveBeenCalled();
+
+    // Accessing json triggers the lazy getter
+    const json = helpers.json;
+    expect(json).toBeDefined();
+    expect(mockEditorInstance!.getJSON).toHaveBeenCalledTimes(1);
+  });
+
+  it('should cache json result on first access', () => {
+    const onChange = vi.fn();
+    renderHook(() => useEditor({ onChange }));
+
+    const onUpdate = capturedOptions.onUpdate as (props: { editor: TiptapEditor }) => void;
+    act(() => {
+      onUpdate({ editor: mockEditorInstance! });
+    });
+
+    const helpers = onChange.mock.calls[0][0];
+
+    // Access json twice — getJSON should only be called once (cached)
+    const json1 = helpers.json;
+    const json2 = helpers.json;
+    expect(json1).toBe(json2);
+    expect(mockEditorInstance!.getJSON).toHaveBeenCalledTimes(1);
   });
 });

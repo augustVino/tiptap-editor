@@ -13,10 +13,16 @@ export interface ContentHelpers {
 }
 
 export function createContentHelpers(editor: Editor): ContentHelpers {
+  let cachedJson: JSONContent | undefined;
   return {
     html: editor.getHTML(),
     text: editor.getText(),
-    json: structuredClone(editor.getJSON()),
+    get json() {
+      if (cachedJson === undefined) {
+        cachedJson = structuredClone(editor.getJSON());
+      }
+      return cachedJson;
+    },
     isEmpty: editor.isEmpty,
   };
 }
