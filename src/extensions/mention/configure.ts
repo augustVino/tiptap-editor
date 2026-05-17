@@ -22,11 +22,16 @@ export function createMentionConfigure(option: MentionConfig) {
     insertToEditor = true,
     onSelect,
     addSourceAttr = false,
+    onTagClick,
+    tippyOptions,
+    debounceMs,
+    emptyText,
+    deleteTriggerWithBackspace = true,
   } = option;
 
   const ListComponent = listComponent ?? List;
   const InteractiveList = withMentionInteraction(ListComponent);
-  const safeItems = createSafeItems(fetchItems);
+  const safeItems = createSafeItems(fetchItems, debounceMs);
 
   let popup: TippyInstance | null = null;
   let reactRenderer: ReactRenderer | null = null;
@@ -44,6 +49,7 @@ export function createMentionConfigure(option: MentionConfig) {
           query: props.query,
           fieldNames: option.fieldNames,
           onSelect,
+          emptyText,
         },
         editor: props.editor,
       });
@@ -59,6 +65,7 @@ export function createMentionConfigure(option: MentionConfig) {
         trigger: 'manual',
         placement: 'bottom-start',
         theme: 'mention',
+        ...tippyOptions,
       });
     },
 
@@ -69,6 +76,7 @@ export function createMentionConfigure(option: MentionConfig) {
         query: props.query,
         fieldNames: option.fieldNames,
         onSelect,
+        emptyText,
       });
 
       popup?.setProps({
@@ -125,7 +133,16 @@ export function createMentionConfigure(option: MentionConfig) {
           type: name,
           attrs: {
             ...mentionItem,
-            ...(addSourceAttr ? { [MENTION_SOURCE_ATTR]: mentionItem } : {}),
+            ...(addSourceAttr
+              ? {
+                  [MENTION_SOURCE_ATTR]:
+                    Array.isArray(addSourceAttr)
+                      ? Object.fromEntries(
+                          addSourceAttr.filter((k) => mentionItem.hasOwnProperty(k)).map((k) => [k, mentionItem[k]])
+                        )
+                      : mentionItem,
+                }
+              : {}),
           },
         },
         { type: 'text', text: ' ' },
@@ -146,14 +163,14 @@ export function createMentionConfigure(option: MentionConfig) {
       render: render as NonNullable<SuggestionOptions<MentionItem>['render']>,
       command: command as NonNullable<SuggestionOptions<MentionItem>['command']>,
     },
-    deleteTriggerWithBackspace: true,
+    deleteTriggerWithBackspace,
   };
 
   const extensionMethods = {
-    addOptions(this: { parent?: () => Record<string, unknown> }) {
+    addOptions(this: { parent?: (...args: any[]) => any }) {
       return {
         ...this.parent?.(),
-        onTagClick: option.onTagClick,
+        onTagClick,
       };
     },
     addAttributes(this: { parent?: () => Record<string, unknown> }) {

@@ -1,4 +1,5 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import type { Editor } from '@tiptap/core';
 import type { MentionItem, MentionListProps } from './types';
 import { mapFieldNames } from './utils';
 
@@ -7,7 +8,8 @@ interface MentionInteractionProps {
   command: (attrs: Record<string, any>) => void;
   query?: string;
   fieldNames?: { label: string; id: string };
-  onSelect?: (item: MentionItem, context: { editor: any; query: string }) => void;
+  onSelect?: (item: MentionItem, context: { editor: Editor; query: string }) => void;
+  emptyText?: string;
 }
 
 export function withMentionInteraction<P extends MentionListProps>(
@@ -17,11 +19,11 @@ export function withMentionInteraction<P extends MentionListProps>(
     { onKeyDown: (props: { event: KeyboardEvent }) => boolean },
     MentionInteractionProps
   >(function MentionInteraction(props, ref) {
-    const { items, command, query, fieldNames, onSelect } = props;
+    const { items, command, query, fieldNames, onSelect, emptyText } = props;
     const [selectedIndex, setSelectedIndex] = useState(0);
     const itemRefs = useRef<Map<number, HTMLElement>>(new Map());
 
-    const list = mapFieldNames(items, fieldNames);
+    const list = useMemo(() => mapFieldNames(items, fieldNames), [items, fieldNames]);
 
     useEffect(() => {
       setSelectedIndex(0);
@@ -78,6 +80,7 @@ export function withMentionInteraction<P extends MentionListProps>(
       query,
       onItemSelect: selectItem,
       registerItemRef,
+      emptyText,
     } as P;
 
     return <WrappedComponent {...displayProps} />;

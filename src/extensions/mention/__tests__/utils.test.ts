@@ -57,4 +57,45 @@ describe('createSafeItems', () => {
     const result = await safeItems({ query: 'a' });
     expect(result).toEqual([]);
   });
+
+  describe('with debounce', () => {
+    it('should debounce fetchItems calls', async () => {
+      vi.useFakeTimers();
+      const items = [{ label: 'A', id: '1' }];
+      const fetchItems = vi.fn().mockResolvedValue(items);
+      const safeItems = createSafeItems(fetchItems, 100);
+
+      const promise1 = safeItems({ query: 'a' });
+      vi.advanceTimersByTime(50);
+      const promise2 = safeItems({ query: 'ab' });
+      vi.advanceTimersByTime(150);
+
+      const [r1, r2] = await Promise.all([promise1, promise2]);
+      expect(r1).toEqual([]);
+      expect(r2).toEqual(items);
+      expect(fetchItems).toHaveBeenCalledTimes(1);
+
+      vi.useRealTimers();
+    });
+
+    it('should not debounce when debounceMs is 0', async () => {
+      const items = [{ label: 'A', id: '1' }];
+      const fetchItems = vi.fn().mockResolvedValue(items);
+      const safeItems = createSafeItems(fetchItems, 0);
+
+      const result = await safeItems({ query: 'a' });
+      expect(result).toEqual(items);
+      expect(fetchItems).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not debounce when debounceMs is undefined', async () => {
+      const items = [{ label: 'A', id: '1' }];
+      const fetchItems = vi.fn().mockResolvedValue(items);
+      const safeItems = createSafeItems(fetchItems);
+
+      const result = await safeItems({ query: 'a' });
+      expect(result).toEqual(items);
+      expect(fetchItems).toHaveBeenCalledTimes(1);
+    });
+  });
 });

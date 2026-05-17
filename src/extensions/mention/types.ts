@@ -25,6 +25,14 @@ export interface MentionListProps {
   emptyText?: string;
 }
 
+export interface MentionTippyOptions {
+  placement?: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end' | 'right' | 'right-start' | 'right-end';
+  theme?: string;
+  offset?: [number, number];
+  maxWidth?: number | string;
+  zIndex?: number;
+}
+
 export interface MentionConfig {
   name: string;
   trigger: string;
@@ -34,6 +42,10 @@ export interface MentionConfig {
   fieldNames?: { label: string; id: string };
   insertToEditor?: boolean;
   onSelect?: (item: MentionItem, context: { editor: Editor; query: string }) => void;
-  addSourceAttr?: boolean;
+  addSourceAttr?: boolean | string[];
   onTagClick?: (attrs: { id: string | null; label: string; kind: string | null }) => void;
+  tippyOptions?: MentionTippyOptions;
+  debounceMs?: number;
+  emptyText?: string;
+  deleteTriggerWithBackspace?: boolean;
 }
