@@ -26,17 +26,11 @@ describe('createMentionExtension', () => {
     expect(ext.name).toBe('atMention');
   });
 
-  it('should warn on duplicate name', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    createMentionExtension({ name: 'dup', trigger: '@', fetchItems: vi.fn() });
-    createMentionExtension({ name: 'dup', trigger: '#', fetchItems: vi.fn() });
-
-    expect(warn).toHaveBeenCalledWith(
-      expect.stringContaining('Duplicate name "dup"'),
-    );
-
-    warn.mockRestore();
+  it('should allow same name on re-creation (React StrictMode safe)', () => {
+    const ext1 = createMentionExtension({ name: 'dup', trigger: '@', fetchItems: vi.fn() });
+    const ext2 = createMentionExtension({ name: 'dup', trigger: '#', fetchItems: vi.fn() });
+    expect(ext1).toBeDefined();
+    expect(ext2).toBeDefined();
   });
 });
 

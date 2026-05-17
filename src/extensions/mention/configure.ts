@@ -134,7 +134,7 @@ export function createMentionConfigure(option: MentionConfig) {
     });
   };
 
-  return {
+  const configOptions = {
     suggestion: {
       char: trigger,
       allowedPrefixes: null,
@@ -143,6 +143,9 @@ export function createMentionConfigure(option: MentionConfig) {
       command: command as any,
     },
     deleteTriggerWithBackspace: true,
+  };
+
+  const extensionMethods = {
     addAttributes() {
       return {
         ...(addSourceAttr
@@ -168,4 +171,6 @@ export function createMentionConfigure(option: MentionConfig) {
       return getMentionNodeView(tagComponent);
     },
   };
+
+  return { configOptions, extensionMethods };
 }

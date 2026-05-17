@@ -3,8 +3,6 @@ import type { JSONContent } from '@tiptap/core';
 import type { MentionConfig } from './types';
 import { createMentionConfigure } from './configure';
 
-const registeredNames = new Map<string, boolean>();
-
 export function createMentionExtension(config: MentionConfig) {
   if (config.trigger.length !== 1) {
     throw new Error(
@@ -12,18 +10,12 @@ export function createMentionExtension(config: MentionConfig) {
     );
   }
 
-  if (registeredNames.get(config.name)) {
-    console.warn(
-      `[createMentionExtension] Duplicate name "${config.name}"`,
-    );
-  }
-  registeredNames.set(config.name, true);
-
-  const configure = createMentionConfigure(config);
+  const { configOptions, extensionMethods } = createMentionConfigure(config);
 
   return Mention.extend({
     name: config.name,
-  }).configure(configure as any);
+    ...extensionMethods,
+  }).configure(configOptions);
 }
 
 export function getMentionSourceFromJSON(
