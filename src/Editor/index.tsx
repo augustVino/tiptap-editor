@@ -60,7 +60,7 @@ export const Editor = forwardRef<EditorRef, EditorProps>(function Editor(props, 
 
   if (!editor) return null;
 
-  const rootClassName = [styles['xuanji-editor-root'], className].filter(Boolean).join(' ');
+  const rootClassName = [styles['tiptap-editor-root'], className].filter(Boolean).join(' ');
 
   return (
     <div id={id} className={rootClassName} data-readonly={editable === false ? 'true' : undefined}>

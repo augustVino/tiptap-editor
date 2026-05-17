@@ -39,10 +39,10 @@ vi.mock('@tiptap/react', () => ({
 }));
 
 // ─── Mock CSS module ───
-// Return class name mapping so styles['xuanji-editor-root'] resolves
+// Return class name mapping so styles['tiptap-editor-root'] resolves
 vi.mock('../index.module.less', () => ({
   default: {
-    'xuanji-editor-root': 'xuanji-editor-root',
+    'tiptap-editor-root': 'tiptap-editor-root',
   },
 }));
 
@@ -58,7 +58,7 @@ beforeEach(() => {
 describe('Editor', () => {
   it('should render editor root with correct class', () => {
     const { container } = render(<Editor placeholder="test" />);
-    const root = container.querySelector('.xuanji-editor-root');
+    const root = container.querySelector('.tiptap-editor-root');
     expect(root).toBeTruthy();
   });
 
@@ -71,7 +71,7 @@ describe('Editor', () => {
     const { container } = render(
       <Editor className="custom-class" placeholder="test" />,
     );
-    const root = container.querySelector('.xuanji-editor-root');
+    const root = container.querySelector('.tiptap-editor-root');
     expect(root?.classList.contains('custom-class')).toBe(true);
   });
 
