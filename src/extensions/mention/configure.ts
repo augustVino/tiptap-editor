@@ -1,3 +1,5 @@
+import type { Editor, Range } from '@tiptap/core';
+import type { SuggestionProps, SuggestionKeyDownProps, SuggestionOptions } from '@tiptap/suggestion';
 import { ReactRenderer } from '@tiptap/react';
 import tippy, { type Instance as TippyInstance } from 'tippy.js';
 import type { MentionConfig, MentionItem } from './types';
@@ -26,14 +28,14 @@ export function createMentionConfigure(option: MentionConfig) {
   const InteractiveList = withMentionInteraction(ListComponent);
   const safeItems = createSafeItems(fetchItems);
 
-  let popup: TippyInstance[] | null = null;
+  let popup: TippyInstance | null = null;
   let reactRenderer: ReactRenderer | null = null;
-  let currentEditor: any = null;
+  let currentEditor: Editor | null = null;
 
   const render = () => ({
-    onStart: (props: any) => {
+    onStart: (props: SuggestionProps<MentionItem>) => {
       currentEditor = props.editor;
-      currentEditor.storage.mentionSuggestion = { active: true };
+      (currentEditor.storage as Record<string, any>).mentionSuggestion = { active: true };
 
       reactRenderer = new ReactRenderer(InteractiveList, {
         props: {
@@ -48,7 +50,7 @@ export function createMentionConfigure(option: MentionConfig) {
 
       if (!props.clientRect) return;
 
-      popup = tippy('body', {
+      popup = tippy(document.body, {
         getReferenceClientRect: props.clientRect as () => DOMRect,
         appendTo: () => document.body,
         content: reactRenderer.element,
@@ -60,7 +62,7 @@ export function createMentionConfigure(option: MentionConfig) {
       });
     },
 
-    onUpdate: (props: any) => {
+    onUpdate: (props: SuggestionProps<MentionItem>) => {
       reactRenderer?.updateProps({
         items: props.items,
         command: props.command,
@@ -69,26 +71,26 @@ export function createMentionConfigure(option: MentionConfig) {
         onSelect,
       });
 
-      popup?.[0]?.setProps({
+      popup?.setProps({
         getReferenceClientRect: props.clientRect as () => DOMRect,
       });
     },
 
-    onKeyDown: (props: any) => {
+    onKeyDown: (props: SuggestionKeyDownProps) => {
       if (props.event.key === 'Escape') {
-        popup?.[0]?.hide();
+        popup?.hide();
         return true;
       }
-      return (reactRenderer?.ref as any)?.onKeyDown?.(props) ?? false;
+      return (reactRenderer?.ref as { onKeyDown?: (props: SuggestionKeyDownProps) => boolean } | null)?.onKeyDown?.(props) ?? false;
     },
 
     onExit: () => {
       if (currentEditor) {
-        currentEditor.storage.mentionSuggestion = { active: false };
+        (currentEditor.storage as Record<string, any>).mentionSuggestion = { active: false };
         currentEditor = null;
       }
 
-      popup?.[0]?.destroy();
+      popup?.destroy();
       popup = null;
 
       reactRenderer?.destroy();
@@ -96,7 +98,7 @@ export function createMentionConfigure(option: MentionConfig) {
     },
   });
 
-  const command = (commandCtx: any) => {
+  const command = (commandCtx: { editor: Editor; range: Range; props: Record<string, any> }) => {
     const { editor: cmdEditor, range, props: itemProps } = commandCtx;
     const { onSelect: itemOnSelect, ...mentionItem } = itemProps;
 
@@ -141,8 +143,8 @@ export function createMentionConfigure(option: MentionConfig) {
       char: trigger,
       allowedPrefixes: null,
       items: safeItems,
-      render: render as any,
-      command: command as any,
+      render: render as NonNullable<SuggestionOptions<MentionItem>['render']>,
+      command: command as NonNullable<SuggestionOptions<MentionItem>['command']>,
     },
     deleteTriggerWithBackspace: true,
   };
