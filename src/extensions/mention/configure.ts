@@ -150,6 +150,12 @@ export function createMentionConfigure(option: MentionConfig) {
   };
 
   const extensionMethods = {
+    addOptions(this: { parent?: () => Record<string, unknown> }) {
+      return {
+        ...this.parent?.(),
+        onTagClick: option.onTagClick,
+      };
+    },
     addAttributes(this: { parent?: () => Record<string, unknown> }) {
       return {
         ...(this.parent?.() || {}),

@@ -35,4 +35,5 @@ export interface MentionConfig {
   insertToEditor?: boolean;
   onSelect?: (item: MentionItem, context: { editor: Editor; query: string }) => void;
   addSourceAttr?: boolean;
+  onTagClick?: (attrs: { id: string | null; label: string; kind: string | null }) => void;
 }

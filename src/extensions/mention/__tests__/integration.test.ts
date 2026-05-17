@@ -35,6 +35,18 @@ describe('createMentionExtension', () => {
 });
 
 describe('createMentionExtension with Editor', () => {
+  it('should store onTagClick in extension options', () => {
+    const onTagClick = vi.fn();
+    const ext = createMentionExtension({
+      name: 'testMention',
+      trigger: '@',
+      fetchItems: vi.fn().mockResolvedValue([]),
+      onTagClick,
+    });
+
+    expect((ext.options as any).onTagClick).toBe(onTagClick);
+  });
+
   it('should integrate with tiptap editor', () => {
     const ext = createMentionExtension({
       name: 'atMention',
