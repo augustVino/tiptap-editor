@@ -1,0 +1,42 @@
+.xuanji-editor-root {
+  --xuanji-editor-border-color: #d9d9d9;
+  --xuanji-editor-focused-border-color: var(--ant-color-primary, #1677ff);
+  --xuanji-editor-placeholder-color: #bfbfbf;
+  --xuanji-editor-readonly-bg: #f5f5f5;
+
+  border: 1px solid var(--xuanji-editor-border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  min-height: 40px;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: var(--xuanji-editor-focused-border-color);
+  }
+
+  :global(.ProseMirror) {
+    outline: none;
+    min-height: 1em;
+
+    > p:last-child {
+      margin-bottom: 0;
+    }
+
+    > p:first-child {
+      margin-top: 0;
+    }
+  }
+
+  :global(.ProseMirror p.is-editor-empty:first-child::before) {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--xuanji-editor-placeholder-color);
+    pointer-events: none;
+    height: 0;
+  }
+
+  &[data-readonly="true"] {
+    background-color: var(--xuanji-editor-readonly-bg);
+    cursor: default;
+  }
+}
