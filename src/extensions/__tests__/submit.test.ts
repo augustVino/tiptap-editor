@@ -76,4 +76,59 @@ describe('createSubmitExtension', () => {
 
     editor.destroy();
   });
+
+  it('should support custom extension name', () => {
+    const onSubmit = vi.fn();
+    const ext = createSubmitExtension({ name: 'customSubmit', onSubmit });
+    expect(ext.name).toBe('customSubmit');
+    const editor = createTestEditor([ext]);
+    editor.commands.keyboardShortcut('Enter');
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    editor.destroy();
+  });
+
+  it('should use custom isSuggestionActive when provided', () => {
+    const onSubmit = vi.fn();
+    const customCheck = vi.fn(() => true);
+    const ext = createSubmitExtension({
+      onSubmit,
+      isSuggestionActive: customCheck,
+    });
+    const editor = createTestEditor([ext]);
+
+    editor.commands.keyboardShortcut('Enter');
+    expect(customCheck).toHaveBeenCalledWith(editor);
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    editor.destroy();
+  });
+
+  it('should fall back to default suggestion check when custom returns false', () => {
+    const onSubmit = vi.fn();
+    const ext = createSubmitExtension({
+      onSubmit,
+      isSuggestionActive: () => false,
+    });
+    const editor = createTestEditor([ext]);
+
+    editor.commands.keyboardShortcut('Enter');
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+
+    editor.destroy();
+  });
+
+  it('should block onSubmit when isSuggestionActive returns true even if shouldSubmit returns true', () => {
+    const onSubmit = vi.fn();
+    const ext = createSubmitExtension({
+      onSubmit,
+      isSuggestionActive: () => true,
+      shouldSubmit: () => true,
+    });
+    const editor = createTestEditor([ext]);
+
+    editor.commands.keyboardShortcut('Enter');
+    expect(onSubmit).not.toHaveBeenCalled();
+
+    editor.destroy();
+  });
 });
