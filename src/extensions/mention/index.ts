@@ -1,7 +1,7 @@
 import Mention from '@tiptap/extension-mention';
 import type { JSONContent } from '@tiptap/core';
 import type { MentionConfig } from './types';
-import { createMentionConfigure } from './configure';
+import { createMentionConfigure, MENTION_SOURCE_ATTR } from './configure';
 
 export function createMentionExtension(config: MentionConfig) {
   if (config.trigger.length !== 1) {
@@ -18,21 +18,35 @@ export function createMentionExtension(config: MentionConfig) {
   }).configure(configOptions);
 }
 
+export function getAllMentionSourcesFromJSON(
+  json: JSONContent,
+  mentionName: string,
+): unknown[] {
+  const results: unknown[] = [];
+  const collect = (node: JSONContent) => {
+    if (node.type === mentionName && node.attrs?.[MENTION_SOURCE_ATTR] != null) {
+      results.push(node.attrs[MENTION_SOURCE_ATTR]);
+    }
+    node.content?.forEach(collect);
+  };
+  collect(json);
+  return results;
+}
+
 export function getMentionSourceFromJSON(
   json: JSONContent,
   mentionName: string,
 ): unknown {
-  const findNode = (node: JSONContent): any => {
-    if (node.type === mentionName) return node.attrs?.mentionSource ?? null;
-    if (node.content) {
-      for (const child of node.content) {
-        const found = findNode(child);
-        if (found) return found;
-      }
+  if (json.type === mentionName && json.attrs?.[MENTION_SOURCE_ATTR] != null) {
+    return json.attrs[MENTION_SOURCE_ATTR];
+  }
+  if (json.content) {
+    for (const child of json.content) {
+      const found = getMentionSourceFromJSON(child, mentionName);
+      if (found != null) return found;
     }
-    return null;
-  };
-  return findNode(json);
+  }
+  return null;
 }
 
 export { withMentionInteraction } from './withMentionInteraction';

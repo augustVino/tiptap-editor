@@ -4,6 +4,6 @@ export type { SubmitConfig } from './submit';
 export { createFileHandlerExtension } from './file-handler';
 export type { FileHandlerConfig } from './file-handler';
 
-export { createMentionExtension, getMentionSourceFromJSON } from './mention';
+export { createMentionExtension, getMentionSourceFromJSON, getAllMentionSourcesFromJSON } from './mention';
 export type { MentionConfig, MentionItem, MentionListProps } from './mention';
 export { withMentionInteraction, NodeViewWrapper } from './mention';

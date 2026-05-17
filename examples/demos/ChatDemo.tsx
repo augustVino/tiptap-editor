@@ -14,7 +14,9 @@ function fetchAll(query: string): Promise<MentionItem[]> {
   const delay = 200 + Math.random() * 300;
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(allItems.filter((item) => item.label.includes(query)).slice(0, 14));
+      resolve(
+        allItems.filter((item) => item.label.includes(query)).slice(0, 14)
+      );
     }, delay);
   });
 }
@@ -29,10 +31,19 @@ const ChatDemo: React.FC = () => {
       createMentionExtension({
         name: 'candidatePositionMention',
         trigger: '@',
+        addSourceAttr: true,
         fetchItems: fetchAll,
         onSelect: (item) => {
           const typeLabel = item.kind === '1' ? '职位' : '候选人';
-          console.log(`[Chat] 选中${typeLabel}:`, { id: item.id, kind: item.kind, label: item.label });
+          console.log(
+            `[Chat] 选中${typeLabel}:`,
+            {
+              id: item.id,
+              kind: item.kind,
+              label: item.label,
+            },
+            item
+          );
         },
       }),
       createSubmitExtension({
@@ -48,15 +59,16 @@ const ChatDemo: React.FC = () => {
         shouldSubmit: (editor) => !editor.isEmpty,
       }),
     ],
-    [],
+    []
   );
 
   return (
     <section>
       <h3>5. 聊天场景</h3>
       <p style={descStyle}>
-        输入 <code>@</code> 触发候选人（kind=2）或职位（kind=1）列表，
-        Enter 提交、Shift+Enter 换行。选中后以标签形式展示，点击标签在控制台打印 id 和 kind。
+        输入 <code>@</code> 触发候选人（kind=2）或职位（kind=1）列表， Enter
+        提交、Shift+Enter 换行。选中后以标签形式展示，点击标签在控制台打印 id 和
+        kind。
       </p>
 
       <Editor
@@ -81,7 +93,11 @@ const ChatDemo: React.FC = () => {
   );
 };
 
-const descStyle: React.CSSProperties = { color: '#666', fontSize: 14, marginBottom: 12 };
+const descStyle: React.CSSProperties = {
+  color: '#666',
+  fontSize: 14,
+  marginBottom: 12,
+};
 const messageStyle: React.CSSProperties = {
   background: '#f5f5f5',
   padding: '8px 12px',

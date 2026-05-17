@@ -21,11 +21,7 @@ export function fetchPositions(query: string): Promise<MentionItem[]> {
   return new Promise((resolve) => {
     const delay = 200 + Math.random() * 300;
     setTimeout(() => {
-      resolve(
-        positions
-          .filter((p) => p.label.includes(query))
-          .slice(0, 5),
-      );
+      resolve(positions.filter((p) => p.label.includes(query)).slice(0, 5));
     }, delay);
   });
 }
@@ -33,7 +29,12 @@ export function fetchPositions(query: string): Promise<MentionItem[]> {
 // ─── 候选人数据（模拟远程 API）───
 
 export const candidates: MentionItem[] = [
-  { id: 'cand_001', label: '张三', kind: '2' },
+  {
+    id: 'cand_001',
+    label: '张三',
+    kind: '2',
+    source: { name: 'text', age: 18, school: 'ceshi' },
+  },
   { id: 'cand_002', label: '李四', kind: '2' },
   { id: 'cand_003', label: '王五', kind: '2' },
   { id: 'cand_004', label: '赵六', kind: '2' },
@@ -47,11 +48,7 @@ export function fetchCandidates(query: string): Promise<MentionItem[]> {
   return new Promise((resolve) => {
     const delay = 200 + Math.random() * 300;
     setTimeout(() => {
-      resolve(
-        candidates
-          .filter((c) => c.label.includes(query))
-          .slice(0, 6),
-      );
+      resolve(candidates.filter((c) => c.label.includes(query)).slice(0, 6));
     }, delay);
   });
 }

@@ -8,7 +8,7 @@ import { getMentionNodeView } from './MentionNodeView';
 
 import './tippy.less';
 
-const MENTION_SOURCE_ATTR = 'mentionSource';
+export const MENTION_SOURCE_ATTR = 'mentionSource';
 
 export function createMentionConfigure(option: MentionConfig) {
   const {
@@ -173,7 +173,15 @@ export function createMentionConfigure(option: MentionConfig) {
                     return null;
                   }
                 },
-                renderHTML: () => ({}),
+                renderHTML: (attributes: Record<string, unknown>) => {
+                  const source = attributes[MENTION_SOURCE_ATTR];
+                  if (!source) return {};
+                  try {
+                    return { 'data-source': JSON.stringify(source) };
+                  } catch {
+                    return {};
+                  }
+                },
               },
             }
           : {}),

@@ -7,7 +7,7 @@ export type { SubmitConfig } from './extensions';
 export { createFileHandlerExtension } from './extensions';
 export type { FileHandlerConfig } from './extensions';
 
-export { createMentionExtension, getMentionSourceFromJSON } from './extensions';
+export { createMentionExtension, getMentionSourceFromJSON, getAllMentionSourcesFromJSON } from './extensions';
 export type { MentionConfig, MentionItem, MentionListProps } from './extensions';
 export { withMentionInteraction } from './extensions';
 export { NodeViewWrapper } from '@tiptap/react';
