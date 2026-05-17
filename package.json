@@ -34,6 +34,7 @@
     "happy-dom": "^20.9.0",
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "^29.1.1",
+    "less": "^4.6.4",
     "typescript": "^6.0.3",
     "vitest": "^4.1.6"
   }
