@@ -5,6 +5,9 @@ import FileHandlerDemo from './demos/FileHandlerDemo';
 import MentionDemo from './demos/MentionDemo';
 import ChatDemo from './demos/ChatDemo';
 import CustomTagDemo from './demos/CustomTagDemo';
+import EditorAdvancedDemo from './demos/EditorAdvancedDemo';
+import MentionCommandPanelDemo from './demos/MentionCommandPanelDemo';
+import MentionAdvancedDemo from './demos/MentionAdvancedDemo';
 
 const demos = [
   { id: 'basic', title: '基础用法' },
@@ -13,6 +16,9 @@ const demos = [
   { id: 'mention', title: '候选人 + 职位' },
   { id: 'chat', title: '聊天场景' },
   { id: 'custom', title: '自定义标签' },
+  { id: 'editor-advanced', title: 'Editor 高级配置' },
+  { id: 'command-panel', title: '命令面板' },
+  { id: 'mention-advanced', title: 'Mention 高级' },
 ] as const;
 
 type DemoId = typeof demos[number]['id'];
@@ -24,6 +30,9 @@ const demoMap: Record<DemoId, React.FC> = {
   mention: MentionDemo,
   chat: ChatDemo,
   custom: CustomTagDemo,
+  'editor-advanced': EditorAdvancedDemo,
+  'command-panel': MentionCommandPanelDemo,
+  'mention-advanced': MentionAdvancedDemo,
 };
 
 const App: React.FC = () => {
