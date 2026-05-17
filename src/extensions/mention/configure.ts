@@ -94,9 +94,9 @@ export function createMentionConfigure(option: MentionConfig) {
     },
   });
 
-  const command = (props: any) => {
-    const { editor: cmdEditor, range } = props;
-    const { onSelect: itemOnSelect, ...mentionItem } = props;
+  const command = (commandCtx: any) => {
+    const { editor: cmdEditor, range, props: itemProps } = commandCtx;
+    const { onSelect: itemOnSelect, ...mentionItem } = itemProps;
 
     if (!insertToEditor) {
       cmdEditor.chain().focus().deleteRange(range).run();
