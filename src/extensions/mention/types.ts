@@ -2,7 +2,7 @@ import type { Editor, JSONContent } from '@tiptap/core';
 import type { ReactNodeViewProps } from '@tiptap/react';
 import type { MentionNodeAttrs } from '@tiptap/extension-mention';
 
-type MakeRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+type MakeRequired<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 
 export type MentionItem = MakeRequired<MentionNodeAttrs, 'label'> & {
   [key: string]: any;
