@@ -52,7 +52,7 @@ export function useEditor(options: UseEditorOptions = {}) {
     content: defaultValue,
     editable,
     autofocus: autoFocus,
-    editorProps,
+    ...(editorProps ? { editorProps } : {}),
     onUpdate: ({ editor }: { editor: Editor }) => {
       const content: ContentHelpers = createContentHelpers(editor);
       lastSyncedValueRef.current = content.html;
