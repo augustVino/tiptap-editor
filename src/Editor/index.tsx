@@ -4,6 +4,8 @@ import type { EditorRef, EditorProps, JSONContent } from './types';
 import { useEditor } from './useEditor';
 import styles from './index.module.less';
 
+export type { EditorProps, EditorRef, ContentHelpers } from './types';
+
 export const Editor = forwardRef<EditorRef, EditorProps>(function Editor(props, ref) {
   const {
     placeholder,
