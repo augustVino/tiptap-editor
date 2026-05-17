@@ -4,7 +4,7 @@ export type { EditorProps, EditorRef, ContentHelpers } from './Editor';
 export { createSubmitExtension } from './extensions';
 export type { SubmitConfig } from './extensions';
 
-export { createFileHandlerExtension } from './extensions';
+export { createFileHandlerExtension, partitionFiles } from './extensions';
 export type { FileHandlerConfig } from './extensions';
 
 export { createMentionExtension, getMentionSourceFromJSON, getAllMentionSourcesFromJSON } from './extensions';

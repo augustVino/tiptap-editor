@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isMimeTypeAllowed } from '../file-handler';
+import { isMimeTypeAllowed, partitionFiles } from '../file-handler';
 
 describe('isMimeTypeAllowed', () => {
   it('should allow all files when no MIME types specified', () => {
@@ -32,5 +32,47 @@ describe('isMimeTypeAllowed', () => {
     expect(isMimeTypeAllowed(png, ['image/*', 'application/pdf'])).toBe(true);
     expect(isMimeTypeAllowed(pdf, ['image/*', 'application/pdf'])).toBe(true);
     expect(isMimeTypeAllowed(txt, ['image/*', 'application/pdf'])).toBe(false);
+  });
+});
+
+describe('partitionFiles', () => {
+  it('should split files into allowed and rejected', () => {
+    const png = new File([''], 'a.png', { type: 'image/png' });
+    const pdf = new File([''], 'b.pdf', { type: 'application/pdf' });
+    const txt = new File([''], 'c.txt', { type: 'text/plain' });
+
+    const { allowed, rejected } = partitionFiles([png, pdf, txt], ['image/*', 'application/pdf']);
+    expect(allowed).toEqual([png, pdf]);
+    expect(rejected).toEqual([txt]);
+  });
+
+  it('should allow all when no MIME types specified', () => {
+    const png = new File([''], 'a.png', { type: 'image/png' });
+    const { allowed, rejected } = partitionFiles([png]);
+    expect(allowed).toEqual([png]);
+    expect(rejected).toEqual([]);
+  });
+
+  it('should handle empty file array', () => {
+    const { allowed, rejected } = partitionFiles([], ['image/*']);
+    expect(allowed).toEqual([]);
+    expect(rejected).toEqual([]);
+  });
+
+  it('should reject all when nothing matches', () => {
+    const txt = new File([''], 'c.txt', { type: 'text/plain' });
+    const { allowed, rejected } = partitionFiles([txt], ['image/*']);
+    expect(allowed).toEqual([]);
+    expect(rejected).toEqual([txt]);
+  });
+
+  it('should reject files with empty or missing type when MIME filter is specified', () => {
+    const emptyType = new File([''], 'noext', { type: '' });
+    const noType = new File([''], 'noext2');
+    const png = new File([''], 'a.png', { type: 'image/png' });
+
+    const { allowed, rejected } = partitionFiles([emptyType, noType, png], ['image/*']);
+    expect(allowed).toEqual([png]);
+    expect(rejected).toEqual([emptyType, noType]);
   });
 });
