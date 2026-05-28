@@ -9,12 +9,19 @@ const BasicDemo: React.FC = () => {
     () => [
       createSubmitExtension({
         onSubmit: () => {
-          setMessages((prev) => [...prev, `消息 ${prev.length + 1}: ${new Date().toLocaleTimeString()}`]);
+          console.log('onSubmit');
+          setMessages((prev) => [
+            ...prev,
+            `消息 ${prev.length + 1}: ${new Date().toLocaleTimeString()}`
+          ]);
         },
-        shouldSubmit: (editor) => !editor.isEmpty,
-      }),
+        shouldSubmit: (editor) => {
+          console.log('shouldSubmit', editor.isEmpty);
+          return !editor.isEmpty;
+        }
+      })
     ],
-    [],
+    []
   );
 
   return (
@@ -29,7 +36,11 @@ const BasicDemo: React.FC = () => {
       {messages.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <strong>已提交：</strong>
-          <ul>{messages.map((m, i) => <li key={i}>{m}</li>)}</ul>
+          <ul>
+            {messages.map((m, i) => (
+              <li key={i}>{m}</li>
+            ))}
+          </ul>
         </div>
       )}
     </section>

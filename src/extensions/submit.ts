@@ -32,7 +32,7 @@ export function createSubmitExtension(config: SubmitConfig) {
           }
 
           if (config.shouldSubmit && !config.shouldSubmit(editor)) {
-            return false;
+            return true;
           }
 
           config.onSubmit();

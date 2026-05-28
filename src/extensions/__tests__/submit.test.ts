@@ -51,6 +51,25 @@ describe('createSubmitExtension', () => {
     editor.destroy();
   });
 
+  it('should NOT insert newline on Enter when shouldSubmit returns false', () => {
+    const onSubmit = vi.fn();
+    const ext = createSubmitExtension({
+      onSubmit,
+      shouldSubmit: () => false,
+    });
+    const editor = new Editor({
+      extensions: [Document, Paragraph, Text, ext],
+      content: '<p></p>',
+    });
+
+    const htmlBefore = editor.getHTML();
+    editor.commands.keyboardShortcut('Enter');
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(editor.getHTML()).toBe(htmlBefore);
+
+    editor.destroy();
+  });
+
   it('should insert newline on Shift+Enter', () => {
     const onSubmit = vi.fn();
     const ext = createSubmitExtension({ onSubmit });
