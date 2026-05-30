@@ -52,5 +52,4 @@ coverage
 .specify
 CLAUDE.md
 docs
-test-features
 __tests__
